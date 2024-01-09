@@ -1,20 +1,19 @@
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography, Button } from '@mui/material';
 
-import { User } from '../../models/user';
+import { Geo } from '../../models/geo';
 
 export function MainPage() {
   /**
    * user 상태(state)를 선언했습니다.
    * 이 state는 User 타입이며, 초기값은 아래와 같습니다.
    */
-  const [user, setUser] = useState<User>({
-    id: 0,
-    firstName: '이웹',
-    lastName: '케',
-    age: 21,
+  const [geo, setGeo] = useState<Geo>({
+    x: 0,
+    y: 0,
   });
+  const navigate = useNavigate();
 
   /**
    * 백엔드 서버에 요청을 보내서 유저 정보를 가져오는 함수입니다.
@@ -22,34 +21,35 @@ export function MainPage() {
    * 서버와 통신하는데 시간이 걸리기 때문에 비동기 함수(async)로 선언했습니다.
    * 비동기 함수는 항상 try-catch문으로 감싸주는 것이 좋습니다. (에러가 발생할 수 있기 때문에)
    */
-  async function getUser() {
-    try {
-      /**
-       * process.env 는 환경변수를 의미합니다
-       * .env 파일에 REACT_APP_API_URL 이라는 변수를 선언했기 때문에 이런식으로 불러올 수 있습니다.
-       * 실행되는 환경(개발이냐 라이브냐)에 따라 달라지는 값이거나, 보안이 필요한 값들은 .env 파일에 넣어두고 불러와서 사용합니다.
-       * .env 파일은 git에 올라가지 않습니다.(지금은 교육용으로 올려놨습니다)
-       * .env 파일은 .gitignore에 등록되어 있습니다.
-       *
-       * axios.get()은 여러 값들을 반환하지만, 우리는 data, status만 사용할 것입니다.
-       * data라는 이름은 너무 추상적이기 때문에 userResponse라는 이름으로 사용합니다.
-       */
-      const { data: userResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/user?id=1`);
-      if (status === 200) {
-        /**
-         * status가 200이라는 것은 서버로부터 제대로 데이터를 받아왔다는 것이므로, 우리는 user 상태를 업데이트해줍니다.
-         */
-        setUser(userResponse);
-      } else {
-        // 실패한 경우, 에러를 발생시킵니다.
-        // 이러면 아래의 catch문으로 넘어갑니다.
-        throw new Error();
-      }
-    } catch {
-      /**
-       * 모종의 이유로 api 호출에 실패한 경우, 에러를 콘솔에 출력합니다. (실제 사용자에게는 보이지 않습니다.)
-       */
-      console.error('유저 정보를 가져오는데 실패했습니다.');
+
+  async function getLocation() {
+    if (navigator.geolocation) {
+      navigator.permissions.query({ name: 'geolocation' }).then(function (result) {
+        if (result.state === 'granted') {
+          console.log(result.state);
+          console.log('granted!');
+          // If granted then you can directly call your function here
+          navigator.geolocation.getCurrentPosition((position) => {
+            setGeo({ x: position.coords.latitude, y: position.coords.longitude });
+          });
+        } else if (result.state === 'prompt') {
+          console.log(result.state);
+          navigator.geolocation.getCurrentPosition((position) => {
+            setGeo({ x: position.coords.latitude, y: position.coords.longitude });
+          });
+        } else if (result.state === 'denied') {
+          console.log('denided!');
+          navigator.geolocation.getCurrentPosition((position) => {
+            setGeo({ x: position.coords.latitude, y: position.coords.longitude });
+          });
+          // If denied then you have to show instructions to enable location
+        }
+        // result.onchange = function () {
+        //   console.log(result.state);
+        // };
+      });
+    } else {
+      alert('Sorry Not available!');
     }
   }
 
@@ -64,19 +64,23 @@ export function MainPage() {
    * 만약 의존성 배열에 어떠한 변수나 상태를 넣어주면, 해당 변수나 상태가 변경될 때마다 실행됩니다. -> 상황에 따라 유용하게 사용할 수 있습니다.
    */
   useEffect(() => {
-    getUser();
+    getLocation();
   }, []);
 
   return (
     <Box paddingX={3} paddingY={5}>
       <Box>
-        <Typography variant="h4">사용자 정보</Typography>
+        <Typography variant="h4">Momokzi</Typography>
       </Box>
       <Box height={40} />
       <Box>
-        <Typography variant="h6">이름: {user.firstName}</Typography>
-        <Typography variant="h6">성: {user.lastName}</Typography>
-        <Typography variant="h6">나이: {user.age}</Typography>
+        <Box>
+          <Typography>{'<위치>에서 검색합니다'}</Typography>
+          <Button onClick={() => navigate('/locate')}>위치 설정</Button>
+        </Box>
+        <Typography>{`좌표: ${geo.x} 와 ${geo.y}`}</Typography>
+        <Button onClick={() => navigate('/filter')}>필터 설정</Button>
+        <Button onClick={() => navigate('/place/10')}>돌리기</Button>
       </Box>
     </Box>
   );

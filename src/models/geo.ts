@@ -11,21 +11,7 @@
  */
 import React from 'react';
 
-export interface User {
-  id: number;
-  firstName: string;
-  lastName: string;
-  age: number;
+export interface Geo {
+  x: number;
+  y: number;
 }
-
-export interface LoginContextType {
-  // Define the types of values your context will provide
-  isLogin: boolean;
-  setIsLogin: (newState: boolean) => void;
-}
-
-// Create the context with a default value
-export const LoginContext = React.createContext<LoginContextType>({
-  isLogin: true,
-  setIsLogin: () => {},
-});

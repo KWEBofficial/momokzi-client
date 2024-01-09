@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Box } from '@mui/material';
 
 import BottomNav from '../BottomNavigation';
+import { LoginContext } from '../../models/user';
 
 /**
  * 이 컴포넌트는 모든 페이지의 레이아웃을 담당합니다.
@@ -12,15 +14,20 @@ import BottomNav from '../BottomNavigation';
 interface LayoutProps {
   children: React.ReactNode;
 }
+
 export function Layout({ children }: LayoutProps) {
+  const [isLogin, setIsLogin] = useState<boolean>(false);
+
   return (
-    <Box display={'flex'} justifyContent={'center'} sx={{ backgroundColor: 'grey' }}>
-      <Box maxWidth={430} width={'100%'} height="100vh">
-        <Box height="90%" sx={{ backgroundColor: '#ffffff' }}>
-          {children}
+    <LoginContext.Provider value={{ isLogin, setIsLogin }}>
+      <Box display={'flex'} justifyContent={'center'} sx={{ backgroundColor: 'grey' }}>
+        <Box width={'100%'} height="100vh">
+          <BottomNav />
+          <Box height="90%" sx={{ backgroundColor: '#ffffff' }}>
+            {children}
+          </Box>
         </Box>
-        <BottomNav />
       </Box>
-    </Box>
+    </LoginContext.Provider>
   );
 }

@@ -5,27 +5,48 @@
  */
 
 import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
 import Box from '@mui/material/Box';
 import BottomNavigationAction from '@mui/material/BottomNavigationAction';
 import BottomNavigation from '@mui/material/BottomNavigation';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import {
+  AccountCircleRounded,
+  CreateRounded,
+  FavoriteRounded,
+  HistoryRounded,
+  LoginRounded,
+  LogoutRounded,
+  SetMealRounded,
+} from '@mui/icons-material';
+
+import { LoginContext, LoginContextType } from '../../models/user';
 
 export default function BottomNav() {
   const navigate = useNavigate();
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { isLogin } = useContext<LoginContextType>(LoginContext);
   return (
     <Box sx={{ width: '100%', height: '10%' }}>
-      <BottomNavigation showLabels sx={{ height: '100%', backgroundColor: 'aliceblue' }}>
-        <BottomNavigationAction label="내 정보" icon={<AccountCircleIcon />} onClick={() => navigate('/')} />
-        <BottomNavigationAction
-          label="유저 목록"
-          icon={<FormatListBulletedIcon />}
-          onClick={() => navigate('/list/21')}
-        />
-        <BottomNavigationAction label="유저 추가" icon={<PersonAddIcon />} onClick={() => navigate('/register')} />
-      </BottomNavigation>
+      {isLogin ? (
+        <BottomNavigation showLabels sx={{ height: '100%', backgroundColor: 'aliceblue' }}>
+          <BottomNavigationAction label="momokzi" icon={<SetMealRounded />} onClick={() => navigate('/')} />
+          <BottomNavigationAction label="히스토리" icon={<HistoryRounded />} onClick={() => navigate('/history')} />
+          <BottomNavigationAction label="즐겨찾기" icon={<FavoriteRounded />} onClick={() => navigate('/favorites')} />
+          <BottomNavigationAction
+            label="회원정보"
+            icon={<AccountCircleRounded />}
+            onClick={() => navigate('/mypage')}
+          />
+          <BottomNavigationAction label="로그아웃" icon={<LogoutRounded />} onClick={() => navigate('/logout')} />
+        </BottomNavigation>
+      ) : (
+        <BottomNavigation showLabels sx={{ height: '100%', backgroundColor: 'aliceblue' }}>
+          <BottomNavigationAction label="momokzi" icon={<SetMealRounded />} onClick={() => navigate('/')} />
+          <BottomNavigationAction label="로그인" icon={<LoginRounded />} onClick={() => navigate('/login')} />
+          <BottomNavigationAction label="회원가입" icon={<CreateRounded />} onClick={() => navigate('/register')} />
+        </BottomNavigation>
+      )}
     </Box>
   );
 }
