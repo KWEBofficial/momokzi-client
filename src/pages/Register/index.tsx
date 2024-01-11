@@ -12,9 +12,8 @@ import { User, LoginContext } from '../../models/user';
  */
 export function RegisterPage() {
   const [input, setInput] = useState({
-    lastName: '',
-    firstName: '',
-    age: 0,
+    username: '',
+    password: '',
   });
 
   const navigate = useNavigate();
@@ -46,7 +45,7 @@ export function RegisterPage() {
    */
   async function handleRegister() {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/user`, input, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/sign_up`, input, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -54,7 +53,7 @@ export function RegisterPage() {
 
       if (response.status === 201) {
         window.alert('회원가입이 완료되었습니다.');
-        navigate('/');
+        navigate('/login');
       }
     } catch (e) {
       window.alert('회원가입에 실패했습니다.');
@@ -77,9 +76,8 @@ export function RegisterPage() {
           <Divider />
         </Box>
         <Stack spacing={2}>
-          <TextField required id="lastName" label="성" onChange={handleInput} />
-          <TextField required id="firstName" label="이름" onChange={handleInput} />
-          <TextField required id="age" label="나이" type="number" onChange={handleInput} />
+          <TextField required id="username" label="아이디" onChange={handleInput} />
+          <TextField required id="password" label="비밀번호" onChange={handleInput} />
         </Stack>
       </Box>
       <Box paddingY={6}>
@@ -356,7 +354,7 @@ export function ListPage() {
       <Box mt={4}>
         <Stack spacing={4}>
           {users.map((user) => (
-            <UserCard key={user.id} firstName={user.firstName} lastName={user.lastName} age={user.age} />
+            <UserCard key={user.id} firstName={user.username} lastName={user.password} age={user.age} />
           ))}
         </Stack>
       </Box>

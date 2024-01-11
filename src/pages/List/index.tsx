@@ -46,7 +46,7 @@ export function ListPage() {
       <Box mt={4}>
         <Stack spacing={4}>
           {users.map((user) => (
-            <UserCard key={user.id} firstName={user.firstName} lastName={user.lastName} age={user.age} />
+            <UserCard key={user.id} firstName={user.username} lastName={user.password} age={user.age} />
           ))}
         </Stack>
       </Box>
