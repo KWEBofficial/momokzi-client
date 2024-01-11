@@ -98,9 +98,8 @@ export function RegisterPage() {
 
 export function LoginPage() {
   const [input, setInput] = useState({
-    lastName: '',
-    firstName: '',
-    age: 0,
+    username: '',
+    password: '',
   });
 
   const navigate = useNavigate();
@@ -133,9 +132,21 @@ export function LoginPage() {
    * 참고로, navigate(-1)은 이전 페이지로 이동하는 함수입니다.
    */
   async function handleLogin() {
-    window.alert('로그인이 완료되었습니다.');
-    setIsLogin(true);
-    navigate('/');
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/sign_in`, input, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.status === 201) {
+        window.alert('로그인이 완료되었습니다.');
+        setIsLogin(true);
+        navigate('/');
+      }
+    } catch (e) {
+      window.alert('로그인에 실패했습니다.');
+    }
   }
 
   /**
@@ -154,8 +165,8 @@ export function LoginPage() {
           <Divider />
         </Box>
         <Stack spacing={2}>
-          <TextField required id="id" type="text" label="ID" onChange={handleInput} />
-          <TextField required id="pw" type="password" label="Password" onChange={handleInput} />
+          <TextField required id="username" type="text" label="ID" onChange={handleInput} />
+          <TextField required id="password" type="password" label="Password" onChange={handleInput} />
         </Stack>
       </Box>
       <Box paddingY={6}>
