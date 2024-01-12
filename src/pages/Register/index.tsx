@@ -70,7 +70,7 @@ export function RegisterPage() {
    */
   async function handleRegister() {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/sign_up`, input, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/sign_up`, input, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -176,7 +176,7 @@ export function LoginPage() {
    */
   async function handleLogin() {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/sign_in`, input, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/sign_in`, input, {
         headers: {
           'Content-Type': 'application/json',
         },
