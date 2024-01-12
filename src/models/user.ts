@@ -14,9 +14,7 @@ export interface User {
   id: number;
   username: string;
   password: string;
-  nickname: string;
   age: number;
-  gender: string;
 }
 
 export interface LoginContextType {

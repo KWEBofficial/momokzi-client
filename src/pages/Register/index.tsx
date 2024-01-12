@@ -1,14 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
-import RadioGroup from '@mui/material/RadioGroup';
-import Radio from '@mui/material/Radio';
-import MenuItem from '@mui/material/MenuItem';
-import InputLabel from '@mui/material/InputLabel';
-import FormLabel from '@mui/material/FormLabel';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
 import { Box, Button, Divider, Stack, TextField, Typography, Card, ListItem, List } from '@mui/material';
 
 import { User, LoginContext } from '../../models/user';
@@ -22,9 +14,6 @@ export function RegisterPage() {
   const [input, setInput] = useState({
     username: '',
     password: '',
-    nickname: '',
-    age: '20',
-    gender: 'M',
   });
 
   const navigate = useNavigate();
@@ -46,20 +35,6 @@ export function RegisterPage() {
     });
   }
 
-  function handleGender(event: React.ChangeEvent<HTMLInputElement>) {
-    setInput({
-      ...input,
-      'gender': event.target.value,
-    })
-  }
-
-  function handleAge(event: SelectChangeEvent) {
-    setInput({
-      ...input,
-      'age': event.target.value
-    })
-  }
-
   /**
    * 회원가입 버튼을 클릭하면 발생하는 함수입니다.
    * 백엔드 서버에 회원가입 요청을 보냅니다.
@@ -70,7 +45,7 @@ export function RegisterPage() {
    */
   async function handleRegister() {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/sign_up`, input, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/sign_up`, input, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -101,26 +76,8 @@ export function RegisterPage() {
           <Divider />
         </Box>
         <Stack spacing={2}>
-          <TextField required id="username" type="text" label="아이디" onChange={handleInput} />
-          <TextField required id="password" type="password" label="비밀번호" onChange={handleInput} />
-          <TextField required id="password2" type="password" label="비밀번호 확인" onChange={handleInput} />
-          <TextField required id="nickname" type="text" label="닉네임" onChange={handleInput} />
-          <Box sx={{ minWidth: 120 }}><FormControl fullWidth>
-            <InputLabel required>나이</InputLabel>
-            <Select id="age" defaultValue="20" onChange={handleAge}>
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
-              <MenuItem value={40}>Fourty</MenuItem>
-            </Select>
-          </FormControl></Box>
-          <FormControl>
-            <FormLabel required>성별</FormLabel>
-            <RadioGroup row id="gender" defaultValue="M" onChange={handleGender}>
-              <FormControlLabel value="M" control={<Radio />} label="남성" />
-              <FormControlLabel value="F" control={<Radio />} label="여성" />
-            </RadioGroup>
-          </FormControl>
+          <TextField required id="username" label="아이디" onChange={handleInput} />
+          <TextField required id="password" label="비밀번호" onChange={handleInput} />
         </Stack>
       </Box>
       <Box paddingY={6}>
@@ -176,7 +133,7 @@ export function LoginPage() {
    */
   async function handleLogin() {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/sign_in`, input, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/user/sign_in`, input, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -288,9 +245,7 @@ export function MyPage() {
     id: 0,
     username: '',
     password: '',
-    nickname: '',
     age: 21,
-    gender: '',
   });
 
   /**
@@ -311,7 +266,7 @@ export function MyPage() {
        * axios.get()은 여러 값들을 반환하지만, 우리는 data, status만 사용할 것입니다.
        * data라는 이름은 너무 추상적이기 때문에 userResponse라는 이름으로 사용합니다.
        */
-      const { data: userResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/user/info`);
+      const { data: userResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/user?id=25`);
       if (status === 200) {
         /**
          * status가 200이라는 것은 서버로부터 제대로 데이터를 받아왔다는 것이므로, 우리는 user 상태를 업데이트해줍니다.
