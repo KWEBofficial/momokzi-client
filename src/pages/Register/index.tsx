@@ -1,6 +1,14 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
+import Select, { SelectChangeEvent } from '@mui/material/Select';
+import RadioGroup from '@mui/material/RadioGroup';
+import Radio from '@mui/material/Radio';
+import MenuItem from '@mui/material/MenuItem';
+import InputLabel from '@mui/material/InputLabel';
+import FormLabel from '@mui/material/FormLabel';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
 import { Box, Button, Divider, Stack, TextField, Typography, Card, ListItem, List } from '@mui/material';
 
 import { User, LoginContext } from '../../models/user';
@@ -14,6 +22,9 @@ export function RegisterPage() {
   const [input, setInput] = useState({
     username: '',
     password: '',
+    nickname: '',
+    age: '20',
+    gender: 'M',
   });
 
   const navigate = useNavigate();
@@ -33,6 +44,20 @@ export function RegisterPage() {
       ...input,
       [event.target.id]: value,
     });
+  }
+
+  function handleGender(event: React.ChangeEvent<HTMLInputElement>) {
+    setInput({
+      ...input,
+      'gender': event.target.value,
+    })
+  }
+
+  function handleAge(event: SelectChangeEvent) {
+    setInput({
+      ...input,
+      'age': event.target.value
+    })
   }
 
   /**
@@ -76,8 +101,26 @@ export function RegisterPage() {
           <Divider />
         </Box>
         <Stack spacing={2}>
-          <TextField required id="username" label="아이디" onChange={handleInput} />
-          <TextField required id="password" label="비밀번호" onChange={handleInput} />
+          <TextField required id="username" type="text" label="아이디" onChange={handleInput} />
+          <TextField required id="password" type="password" label="비밀번호" onChange={handleInput} />
+          <TextField required id="password2" type="password" label="비밀번호 확인" onChange={handleInput} />
+          <TextField required id="nickname" type="text" label="닉네임" onChange={handleInput} />
+          <Box sx={{ minWidth: 120 }}><FormControl fullWidth>
+            <InputLabel required>나이</InputLabel>
+            <Select id="age" defaultValue="20" onChange={handleAge}>
+              <MenuItem value={10}>Ten</MenuItem>
+              <MenuItem value={20}>Twenty</MenuItem>
+              <MenuItem value={30}>Thirty</MenuItem>
+              <MenuItem value={40}>Fourty</MenuItem>
+            </Select>
+          </FormControl></Box>
+          <FormControl>
+            <FormLabel required>성별</FormLabel>
+            <RadioGroup row id="gender" defaultValue="M" onChange={handleGender}>
+              <FormControlLabel value="M" control={<Radio />} label="남성" />
+              <FormControlLabel value="F" control={<Radio />} label="여성" />
+            </RadioGroup>
+          </FormControl>
         </Stack>
       </Box>
       <Box paddingY={6}>
@@ -245,7 +288,9 @@ export function MyPage() {
     id: 0,
     username: '',
     password: '',
+    nickname: '',
     age: 21,
+    gender: '',
   });
 
   /**
