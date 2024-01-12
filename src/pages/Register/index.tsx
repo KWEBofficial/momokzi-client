@@ -311,7 +311,7 @@ export function MyPage() {
        * axios.get()은 여러 값들을 반환하지만, 우리는 data, status만 사용할 것입니다.
        * data라는 이름은 너무 추상적이기 때문에 userResponse라는 이름으로 사용합니다.
        */
-      const { data: userResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/user?id=25`);
+      const { data: userResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/user/info`);
       if (status === 200) {
         /**
          * status가 200이라는 것은 서버로부터 제대로 데이터를 받아왔다는 것이므로, 우리는 user 상태를 업데이트해줍니다.
