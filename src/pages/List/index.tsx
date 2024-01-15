@@ -1,8 +1,8 @@
 import { useParams } from 'react-router-dom';
 import React, { useContext, useEffect, useState } from 'react';
 // import axios from 'axios';
-import { Box, Card, Stack, Typography } from '@mui/material';
-import { Star } from '@mui/icons-material';
+import { Box, Card, IconButton, Stack, Typography } from '@mui/material';
+import { Delete, Star } from '@mui/icons-material';
 
 // import { User } from '../../models/user';
 import { RequireLoginPage } from '../Error';
@@ -19,8 +19,9 @@ export function PlacePage() {
   const [place, setPlace] = useState<Place>(placePlaceHolder);
   const { id } = useParams();
 
-  async function getUsers() {
+  async function getPlace() {
     try {
+      // id를 이용해 장소 정보를 가져옴.
       if (Number(id) < 0) throw new Error('id is negative');
       setPlace({
         id: 1,
@@ -42,7 +43,7 @@ export function PlacePage() {
   }
 
   useEffect(() => {
-    getUsers();
+    getPlace();
   }, []);
 
   /**
@@ -59,7 +60,7 @@ export function PlacePage() {
       </Box>
       <Box mt={4}>
         <Stack spacing={4}>
-          <PlaceCard place={place} />
+          <PlaceCard deletable={false} place={place} />
         </Stack>
       </Box>
     </Box>
@@ -78,7 +79,7 @@ export function History() {
         {
           id: 1,
           name: '어흥식당',
-          isFavorite: true,
+          isFavorite: false,
           grade: 4.0,
           img: undefined,
         },
@@ -100,7 +101,7 @@ export function History() {
       <Box mt={4}>
         <Stack spacing={4}>
           {places.map((place) => (
-            <PlaceCard place={place} />
+            <PlaceCard deletable={true} place={place} />
           ))}
         </Stack>
       </Box>
@@ -145,7 +146,7 @@ export function Favorites() {
       <Box mt={4}>
         <Stack spacing={4}>
           {places.map((place) => (
-            <PlaceCard place={place} />
+            <PlaceCard deletable={false} place={place} />
           ))}
         </Stack>
       </Box>
@@ -161,15 +162,53 @@ export function Favorites() {
  */
 interface PlaceProp {
   place: Place;
+  deletable: boolean;
 }
 
-export function PlaceCard({ place }: PlaceProp) {
-  return (
+export function PlaceCard({ place, deletable }: PlaceProp) {
+  const [star, setStar] = useState(place.isFavorite);
+  const [deleted, setDeleted] = useState(false);
+
+  useEffect(() => {
+    // 즐겨찾기 토글 동작
+  }, [star]);
+
+  useEffect(() => {
+    // 히스토리 제거 동작
+  }, [deleted]);
+
+  return deleted ? (
+    <div />
+  ) : (
     <Card>
       <Box padding={2}>
         <Typography variant="h6">id : {place.id}</Typography>
-        <img src={place.img} />
-        <Star />
+        <img
+          src={place.img}
+          onError={(event) => {
+            // eslint-disable-next-line no-param-reassign
+            event.currentTarget.src = `/public/placeImageFallback.png`;
+          }}
+          alt={'🏞️'}
+        />
+        <IconButton
+          onClick={() => {
+            setStar(!star);
+          }}
+        >
+          <Star color={star ? 'primary' : 'disabled'} />
+        </IconButton>
+        {deletable ? (
+          <IconButton
+            onClick={() => {
+              setDeleted(true);
+            }}
+          >
+            <Delete />
+          </IconButton>
+        ) : (
+          <div />
+        )}
         <Typography variant="h6">나이: {}</Typography>
       </Box>
     </Card>

@@ -4,6 +4,7 @@ import { Box } from '@mui/material';
 import BottomNav from '../BottomNavigation';
 import { notLoginUserState, User, UserContext } from '../../models/user';
 import { Geo, GeoContext } from '../../models/geo';
+import { FilterContext, filterPlaceHolder } from '../../models/filter';
 
 /**
  * 이 컴포넌트는 모든 페이지의 레이아웃을 담당합니다.
@@ -16,22 +17,31 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-export function Layout({ children }: LayoutProps) {
+export const Provider = ({ children }: LayoutProps) => {
   const [user, setUser] = useState<User>(notLoginUserState);
   const [geo, setGeo] = useState<Geo>({ x: 0, y: 0, auto: true });
+  const [filter, setFilter] = useState(filterPlaceHolder);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
       <GeoContext.Provider value={{ geo, setGeo }}>
-        <Box display={'flex'} justifyContent={'center'} sx={{ backgroundColor: 'grey' }}>
-          <Box width={'100%'} height="100vh">
-            <BottomNav />
-            <Box height="90%" sx={{ backgroundColor: '#ffffff' }}>
-              {children}
-            </Box>
-          </Box>
-        </Box>
+        <FilterContext.Provider value={{ filter, setFilter }}>{children}</FilterContext.Provider>
       </GeoContext.Provider>
     </UserContext.Provider>
+  );
+};
+
+export function Layout({ children }: LayoutProps) {
+  return (
+    <Provider>
+      <Box display={'flex'} justifyContent={'center'} sx={{ backgroundColor: 'grey' }}>
+        <Box width={'100%'} height="100vh">
+          <BottomNav />
+          <Box height="90%" sx={{ backgroundColor: '#ffffff' }}>
+            {children}
+          </Box>
+        </Box>
+      </Box>
+    </Provider>
   );
 }
