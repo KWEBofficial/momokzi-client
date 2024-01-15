@@ -1,18 +1,17 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState /* , useState */ } from 'react';
 import { Box, Typography, Button } from '@mui/material';
 
-import { Geo } from '../../models/geo';
+import { GeoContext, GeoContextType, getCurrentLocation } from '../../models/geo';
+// @ts-expect-error kakao will be in global
+const { kakao } = window;
 
 export function MainPage() {
   /**
    * user 상태(state)를 선언했습니다.
    * 이 state는 User 타입이며, 초기값은 아래와 같습니다.
    */
-  const [geo, setGeo] = useState<Geo>({
-    x: 0,
-    y: 0,
-  });
+  const { geo, setGeo } = useContext<GeoContextType>(GeoContext);
   const navigate = useNavigate();
 
   /**
@@ -21,37 +20,6 @@ export function MainPage() {
    * 서버와 통신하는데 시간이 걸리기 때문에 비동기 함수(async)로 선언했습니다.
    * 비동기 함수는 항상 try-catch문으로 감싸주는 것이 좋습니다. (에러가 발생할 수 있기 때문에)
    */
-
-  async function getLocation() {
-    if (navigator.geolocation) {
-      navigator.permissions.query({ name: 'geolocation' }).then(function (result) {
-        if (result.state === 'granted') {
-          console.log(result.state);
-          console.log('granted!');
-          // If granted then you can directly call your function here
-          navigator.geolocation.getCurrentPosition((position) => {
-            setGeo({ x: position.coords.latitude, y: position.coords.longitude });
-          });
-        } else if (result.state === 'prompt') {
-          console.log(result.state);
-          navigator.geolocation.getCurrentPosition((position) => {
-            setGeo({ x: position.coords.latitude, y: position.coords.longitude });
-          });
-        } else if (result.state === 'denied') {
-          console.log('denided!');
-          navigator.geolocation.getCurrentPosition((position) => {
-            setGeo({ x: position.coords.latitude, y: position.coords.longitude });
-          });
-          // If denied then you have to show instructions to enable location
-        }
-        // result.onchange = function () {
-        //   console.log(result.state);
-        // };
-      });
-    } else {
-      alert('Sorry Not available!');
-    }
-  }
 
   /**
    * useEffect는 컴포넌트가 렌더링 될 때마다 실행되는 함수입니다.
@@ -63,9 +31,29 @@ export function MainPage() {
    * deps(=의존성) 배열이 빈 배열이므로 첫 렌더링 때만 실행됩니다.
    * 만약 의존성 배열에 어떠한 변수나 상태를 넣어주면, 해당 변수나 상태가 변경될 때마다 실행됩니다. -> 상황에 따라 유용하게 사용할 수 있습니다.
    */
+
+  const geocoder = new kakao.maps.services.Geocoder();
+
+  const [geoText, setGeoText] = useState('<지원되지 않는 위치>');
+
   useEffect(() => {
-    getLocation();
+    if (geo.auto === true) getCurrentLocation(setGeo);
   }, []);
+
+  useEffect(() => {
+    geocoder.coord2RegionCode(geo.y, geo.x, displayCenterInfo);
+
+    // 지도 좌측상단에 지도 중심좌표에 대한 주소정보를 표출하는 함수입니다
+    function displayCenterInfo(result: Array<{ address_name: string; region_type: string }>, status: unknown) {
+      if (status === kakao.maps.services.Status.OK) {
+        result.forEach((value) => {
+          if (value.region_type === 'H') {
+            setGeoText(value.address_name);
+          }
+        });
+      }
+    }
+  }, [geo]);
 
   return (
     <Box paddingX={3} paddingY={5}>
@@ -75,10 +63,9 @@ export function MainPage() {
       <Box height={40} />
       <Box>
         <Box>
-          <Typography>{'<위치>에서 검색합니다'}</Typography>
+          <Typography>{`${geoText}에서 검색합니다`}</Typography>
           <Button onClick={() => navigate('/locate')}>위치 설정</Button>
         </Box>
-        <Typography>{`좌표: ${geo.x} 와 ${geo.y}`}</Typography>
         <Button onClick={() => navigate('/filter')}>필터 설정</Button>
         <Button onClick={() => navigate('/place/10')}>돌리기</Button>
       </Box>
