@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { useContext, useEffect, useState /* , useState */ } from 'react';
-import { Box, Typography, Button } from '@mui/material';
+import { Box, Typography, Button, CircularProgress } from '@mui/material';
 
 import { GeoContext, GeoContextType, getCurrentLocation } from '../../models/geo';
+import { FilterContext } from '../../models/filter';
 // @ts-expect-error kakao will be in global
 const { kakao } = window;
 
@@ -12,6 +13,7 @@ export function MainPage() {
    * 이 state는 User 타입이며, 초기값은 아래와 같습니다.
    */
   const { geo, setGeo } = useContext<GeoContextType>(GeoContext);
+  const { filter } = useContext(FilterContext);
   const navigate = useNavigate();
 
   /**
@@ -35,6 +37,7 @@ export function MainPage() {
   const geocoder = new kakao.maps.services.Geocoder();
 
   const [geoText, setGeoText] = useState('<지원되지 않는 위치>');
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     if (geo.auto === true) getCurrentLocation(setGeo);
@@ -43,7 +46,6 @@ export function MainPage() {
   useEffect(() => {
     geocoder.coord2RegionCode(geo.y, geo.x, displayCenterInfo);
 
-    // 지도 좌측상단에 지도 중심좌표에 대한 주소정보를 표출하는 함수입니다
     function displayCenterInfo(result: Array<{ address_name: string; region_type: string }>, status: unknown) {
       if (status === kakao.maps.services.Status.OK) {
         result.forEach((value) => {
@@ -55,6 +57,13 @@ export function MainPage() {
     }
   }, [geo]);
 
+  useEffect(() => {
+    if (searching) {
+      setTimeout(() => navigate('/place/10'), 3000);
+      // 실패시 : navigate('/fail')
+    }
+  }, [searching]);
+
   return (
     <Box paddingX={3} paddingY={5}>
       <Box>
@@ -63,11 +72,17 @@ export function MainPage() {
       <Box height={40} />
       <Box>
         <Box>
-          <Typography>{`${geoText}에서 검색합니다`}</Typography>
+          <Typography>{`${geoText}에서 ${filter.foodType}을(를) 검색합니다`}</Typography>
           <Button onClick={() => navigate('/locate')}>위치 설정</Button>
         </Box>
         <Button onClick={() => navigate('/filter')}>필터 설정</Button>
-        <Button onClick={() => navigate('/place/10')}>돌리기</Button>
+        {searching ? (
+          <Button startIcon={<CircularProgress />} disabled={true}>
+            돌리는 중..
+          </Button>
+        ) : (
+          <Button onClick={() => setSearching(true)}>돌리기</Button>
+        )}
       </Box>
     </Box>
   );
