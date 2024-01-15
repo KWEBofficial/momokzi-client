@@ -304,8 +304,10 @@ export function MyPage() {
       <Box height={40} />
       <Box>
         <Typography variant="h6">이름: {user.username}</Typography>
-        <Typography variant="h6">성: {user.password}</Typography>
+        <Typography variant="h6">성: {user.gender}</Typography>
         <Typography variant="h6">나이: {user.age}</Typography>
+        <Typography variant="h6">닉네임: {user.nickname}</Typography>
+        <Typography variant="h6">ID: {user.id}</Typography>
       </Box>
     </Box>
   ) : (

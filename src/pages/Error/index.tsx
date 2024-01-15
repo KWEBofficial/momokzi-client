@@ -4,6 +4,20 @@ import { Box, Typography, Button } from '@mui/material';
 
 // import { GlobalAppContext } from '../../models/user';
 
+export function SearchFailedPage() {
+  return (
+    <Box paddingX={3} paddingY={5}>
+      <Box>
+        <Typography variant="h4">!</Typography>
+      </Box>
+      <Box height={40} />
+      <Box>
+        <Typography>적절한 식당을 찾을 수 없었습니다. 필터를 바꿔서 다시 시도해보실래요?</Typography>
+      </Box>
+    </Box>
+  );
+}
+
 export function NotFoundPage() {
   return (
     <Box paddingX={3} paddingY={5}>
