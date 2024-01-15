@@ -1,8 +1,9 @@
 import { Route, Routes } from 'react-router-dom';
 
 import { FilterPage, MapPage } from '../pages/Setting';
-import { RegisterPage, LoginPage, History, Favorites, MyPage, ListPage, LogOutPage } from '../pages/Register';
+import { RegisterPage, LoginPage, MyPage, ListPage, LogOutPage } from '../pages/Register';
 import { MainPage } from '../pages/Main';
+import { History, Favorites, PlacePage } from '../pages/List';
 
 /**
  * 어느 url에 어떤 페이지를 보여줄지 정해주는 컴포넌트입니다.
@@ -20,7 +21,7 @@ export function RouteComponent() {
       <Route path="/history" element={<History />} />
       <Route path="/favorites" element={<Favorites />} />
       <Route path="/mypage" element={<MyPage />} />
-      <Route path="/place/:id" element={<ListPage />} />
+      <Route path="/place/:id" element={<PlacePage />} />
       <Route path="/list/:age" element={<ListPage />} />
     </Routes>
   );

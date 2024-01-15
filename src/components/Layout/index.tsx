@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box } from '@mui/material';
 
 import BottomNav from '../BottomNavigation';
-import { LoginContext } from '../../models/user';
+import { notLoginUserState, User, UserContext } from '../../models/user';
 import { Geo, GeoContext } from '../../models/geo';
 
 /**
@@ -17,11 +17,11 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [user, setUser] = useState<User>(notLoginUserState);
   const [geo, setGeo] = useState<Geo>({ x: 0, y: 0, auto: true });
 
   return (
-    <LoginContext.Provider value={{ isLogin, setIsLogin }}>
+    <UserContext.Provider value={{ user, setUser }}>
       <GeoContext.Provider value={{ geo, setGeo }}>
         <Box display={'flex'} justifyContent={'center'} sx={{ backgroundColor: 'grey' }}>
           <Box width={'100%'} height="100vh">
@@ -32,6 +32,6 @@ export function Layout({ children }: LayoutProps) {
           </Box>
         </Box>
       </GeoContext.Provider>
-    </LoginContext.Provider>
+    </UserContext.Provider>
   );
 }
