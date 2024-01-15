@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Box } from '@mui/material';
 
 import BottomNav from '../BottomNavigation';
 import { LoginContext } from '../../models/user';
+import { Geo, GeoContext } from '../../models/geo';
 
 /**
  * 이 컴포넌트는 모든 페이지의 레이아웃을 담당합니다.
@@ -17,17 +18,20 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const [isLogin, setIsLogin] = useState<boolean>(false);
+  const [geo, setGeo] = useState<Geo>({ x: 0, y: 0, auto: true });
 
   return (
     <LoginContext.Provider value={{ isLogin, setIsLogin }}>
-      <Box display={'flex'} justifyContent={'center'} sx={{ backgroundColor: 'grey' }}>
-        <Box width={'100%'} height="100vh">
-          <BottomNav />
-          <Box height="90%" sx={{ backgroundColor: '#ffffff' }}>
-            {children}
+      <GeoContext.Provider value={{ geo, setGeo }}>
+        <Box display={'flex'} justifyContent={'center'} sx={{ backgroundColor: 'grey' }}>
+          <Box width={'100%'} height="100vh">
+            <BottomNav />
+            <Box height="90%" sx={{ backgroundColor: '#ffffff' }}>
+              {children}
+            </Box>
           </Box>
         </Box>
-      </Box>
+      </GeoContext.Provider>
     </LoginContext.Provider>
   );
 }

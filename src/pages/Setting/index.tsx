@@ -1,9 +1,11 @@
-import 'react-router-dom';
-// import React, { useState, useEffect } from 'react';
-import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useContext, useEffect, useState } from 'react';
 // import axios from 'axios';
 // import { Box, Button, Divider, Stack, TextField, Typography } from '@mui/material';
 import { Box, Button, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@mui/material';
+import { MyLocation } from '@mui/icons-material';
+
+import { GeoContext, getCurrentLocation } from '../../models/geo';
 // @ts-expect-error kakao will be in global
 const { kakao } = window;
 
@@ -59,27 +61,71 @@ export function FilterPage() {
 }
 
 export function MapPage() {
-  useEffect(() => {
-    const container = document.getElementById('map');
-    // 지도를 담을 영역의 DOM 레퍼런스
-    const options = {
-      // 지도를 생성할 때 필요한 기본 옵션
-      center: new kakao.maps.LatLng(33.450701, 126.570667),
-      // 지도의 중심좌표.
-      level: 3,
-      // 지도의 레벨(확대, 축소 정도)
-    };
+  const { geo, setGeo } = useContext(GeoContext);
+  const [localGeo, setLocalGeo] = useState(geo);
+  const [localGeoText, setLocalGeoText] = useState('');
 
-    const map = new kakao.maps.Map(container, options); // 지도 생성 및 객체 리턴
-    console.log(map);
+  const navigate = useNavigate();
+  const geocoder = new kakao.maps.services.Geocoder();
+
+  useEffect(() => {
+    if (geo.auto === true) getCurrentLocation(setGeo);
+    setLocalGeo(geo);
+
+    const map = new kakao.maps.Map(document.getElementById('map'), {
+      center: new kakao.maps.LatLng(localGeo.x, localGeo.y),
+      level: 3,
+    });
+    const marker = new kakao.maps.Marker({ position: map.getCenter() });
+    marker.setMap(map);
+
+    // 드래그가 끝났을 때 지도 중심 좌표에 대한 주소 정보를 표시하도록 이벤트를 등록합니다
+    kakao.maps.event.addListener(map, 'dragend', function () {
+      marker.setPosition(map.getCenter());
+      const y = map.getCenter().getLng();
+      const x = map.getCenter().getLat();
+      setLocalGeo({ x, y, auto: false });
+    });
   }, []);
+
+  useEffect(() => {
+    geocoder.coord2RegionCode(localGeo.y, localGeo.x, displayCenterInfo);
+
+    // 지도 좌측상단에 지도 중심좌표에 대한 주소정보를 표출하는 함수입니다
+    function displayCenterInfo(result: Array<{ address_name: string; region_type: string }>, status: unknown) {
+      if (status === kakao.maps.services.Status.OK) {
+        result.forEach((value) => {
+          if (value.region_type === 'H') {
+            setLocalGeoText(value.address_name);
+          }
+        });
+      }
+    }
+  }, [localGeo]);
 
   return (
     <Box padding={2} paddingTop={4}>
       <Box>
         <div id="map" style={{ width: '1000px', height: '1000px' }}></div>
       </Box>
-      <Button></Button>
+      <Button
+        onClick={() => {
+          setGeo(localGeo);
+          navigate('/');
+        }}
+      >
+        {localGeoText}
+        에서 찾기
+      </Button>
+      <Button
+        onClick={() => {
+          getCurrentLocation(setLocalGeo);
+          navigate('/');
+        }}
+        startIcon={<MyLocation />}
+      >
+        현재 기기 위치에서 찾기
+      </Button>
     </Box>
   );
 }
