@@ -8,6 +8,7 @@ import { Delete, Star } from '@mui/icons-material';
 import { RequireLoginPage } from '../Error';
 import { UserContext } from '../../models/user';
 import { Place, placePlaceHolder } from '../../models/place';
+import placeImageFallback from '../../image/placeImageFallback.png';
 
 /**
  * 전체적인 구조는 MainPage와 비슷합니다. (MainPage를 먼저 보고 오세요)
@@ -182,33 +183,35 @@ export function PlaceCard({ place, deletable }: PlaceProp) {
   ) : (
     <Card>
       <Box padding={2}>
+        <Stack direction="row" justifyContent="flex-end" spacing={2}>
+          <IconButton
+            onClick={() => {
+              setStar(!star);
+            }}
+          >
+            <Star color={star ? 'primary' : 'disabled'} />
+          </IconButton>
+          {deletable ? (
+            <IconButton
+              onClick={() => {
+                setDeleted(true);
+              }}
+            >
+              <Delete />
+            </IconButton>
+          ) : (
+            <div />
+          )}
+        </Stack>
         <Typography variant="h6">id : {place.id}</Typography>
         <img
-          src={place.img}
+          src={place.img || placeImageFallback}
           onError={(event) => {
             // eslint-disable-next-line no-param-reassign
             event.currentTarget.src = `/public/placeImageFallback.png`;
           }}
           alt={'🏞️'}
         />
-        <IconButton
-          onClick={() => {
-            setStar(!star);
-          }}
-        >
-          <Star color={star ? 'primary' : 'disabled'} />
-        </IconButton>
-        {deletable ? (
-          <IconButton
-            onClick={() => {
-              setDeleted(true);
-            }}
-          >
-            <Delete />
-          </IconButton>
-        ) : (
-          <div />
-        )}
         <Typography variant="h6">나이: {}</Typography>
       </Box>
     </Card>

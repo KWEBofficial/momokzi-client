@@ -1,9 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { useContext, useEffect, useState /* , useState */ } from 'react';
-import { Box, Typography, Button, CircularProgress } from '@mui/material';
+import { Box, Typography, Button, CircularProgress, Stack } from '@mui/material';
 
 import { GeoContext, GeoContextType, getCurrentLocation } from '../../models/geo';
 import { FilterContext } from '../../models/filter';
+import thinkFish from '../../image/thinkFish.png';
 // @ts-expect-error kakao will be in global
 const { kakao } = window;
 
@@ -67,22 +68,23 @@ export function MainPage() {
   return (
     <Box paddingX={3} paddingY={5}>
       <Box>
+        <img src={thinkFish} />
         <Typography variant="h4">Momokzi</Typography>
       </Box>
       <Box height={40} />
       <Box>
-        <Box>
+        <Stack>
           <Typography>{`${geoText}에서 ${filter.foodType}을(를) 검색합니다`}</Typography>
           <Button onClick={() => navigate('/locate')}>위치 설정</Button>
-        </Box>
-        <Button onClick={() => navigate('/filter')}>필터 설정</Button>
-        {searching ? (
-          <Button startIcon={<CircularProgress />} disabled={true}>
-            돌리는 중..
-          </Button>
-        ) : (
-          <Button onClick={() => setSearching(true)}>돌리기</Button>
-        )}
+          <Button onClick={() => navigate('/filter')}>필터 설정</Button>
+          {searching ? (
+            <Button startIcon={<CircularProgress />} disabled={true}>
+              돌리는 중..
+            </Button>
+          ) : (
+            <Button onClick={() => setSearching(true)}>돌리기</Button>
+          )}
+        </Stack>
       </Box>
     </Box>
   );

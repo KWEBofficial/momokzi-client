@@ -258,26 +258,29 @@ export function MapPage() {
   return (
     <Box padding={2} paddingTop={4}>
       <Box>
-        <div id="map" style={{ width: '1000px', height: '1000px' }}></div>
+        <div id="map" style={{ width: '100%', height: '30em' }}></div>
       </Box>
-      <Button
-        onClick={() => {
-          setGeo(localGeo);
-          navigate('/');
-        }}
-      >
-        {localGeoText}
-        에서 찾기
-      </Button>
-      <Button
-        onClick={() => {
-          getCurrentLocation(setLocalGeo);
-          navigate('/');
-        }}
-        startIcon={<MyLocation />}
-      >
-        현재 기기 위치에서 찾기
-      </Button>
+      <Stack>
+        <Button
+          onClick={() => {
+            setGeo(localGeo);
+            navigate('/');
+          }}
+        >
+          {localGeoText}
+          에서 찾기
+        </Button>
+        <Button
+          onClick={() => {
+            getCurrentLocation(setGeo).then(() => {
+              navigate('/');
+            });
+          }}
+          startIcon={<MyLocation />}
+        >
+          현재 기기 위치에서 찾기
+        </Button>
+      </Stack>
     </Box>
   );
 }
