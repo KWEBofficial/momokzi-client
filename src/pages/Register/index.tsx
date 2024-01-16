@@ -9,9 +9,10 @@ import InputLabel from '@mui/material/InputLabel';
 import FormLabel from '@mui/material/FormLabel';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
-import { Box, Button, Divider, Stack, TextField, Typography, Card, ListItem, List } from '@mui/material';
+import { Box, Button, Divider, Stack, TextField, Typography, Card } from '@mui/material';
 
-import { User, LoginContext } from '../../models/user';
+import { RequireLoginPage } from '../Error';
+import { notLoginUserState, User, UserContext } from '../../models/user';
 
 let userid = 0;
 
@@ -51,15 +52,15 @@ export function RegisterPage() {
   function handleGender(event: React.ChangeEvent<HTMLInputElement>) {
     setInput({
       ...input,
-      'gender': event.target.value,
-    })
+      gender: event.target.value,
+    });
   }
 
   function handleAge(event: SelectChangeEvent) {
     setInput({
       ...input,
-      'age': event.target.value
-    })
+      age: event.target.value,
+    });
   }
 
   /**
@@ -107,15 +108,17 @@ export function RegisterPage() {
           <TextField required id="password" type="password" label="비밀번호" onChange={handleInput} />
           <TextField required id="password2" type="password" label="비밀번호 확인" onChange={handleInput} />
           <TextField required id="nickname" type="text" label="닉네임" onChange={handleInput} />
-          <Box sx={{ minWidth: 120 }}><FormControl fullWidth>
-            <InputLabel required>나이</InputLabel>
-            <Select id="age" defaultValue="20" onChange={handleAge}>
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
-              <MenuItem value={40}>Fourty</MenuItem>
-            </Select>
-          </FormControl></Box>
+          <Box sx={{ minWidth: 120 }}>
+            <FormControl fullWidth>
+              <InputLabel required>나이</InputLabel>
+              <Select id="age" defaultValue="20" onChange={handleAge}>
+                <MenuItem value={10}>Ten</MenuItem>
+                <MenuItem value={20}>Twenty</MenuItem>
+                <MenuItem value={30}>Thirty</MenuItem>
+                <MenuItem value={40}>Fourty</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
           <FormControl>
             <FormLabel required>성별</FormLabel>
             <RadioGroup row id="gender" defaultValue="M" onChange={handleGender}>
@@ -166,7 +169,7 @@ export function LoginPage() {
     });
   }
 
-  const { setIsLogin } = useContext(LoginContext);
+  const { setUser } = useContext(UserContext);
 
   /**
    * 회원가입 버튼을 클릭하면 발생하는 함수입니다.
@@ -188,6 +191,15 @@ export function LoginPage() {
         window.alert('로그인이 완료되었습니다.');
         userid = userResponse.id;
         setIsLogin(true);
+        setUser({
+        isLogin: true,
+        id: 10,
+        username: 'asdf',
+        password: '',
+        nickname: 'asdgasdgasdg',
+        age: 245,
+        gender: 'male',
+      });
         navigate('/');
       }
     } catch (e) {
@@ -234,13 +246,12 @@ export function LoginPage() {
 export function LogOutPage() {
   const navigate = useNavigate();
 
-  const { setIsLogin } = useContext(LoginContext);
+  const { setUser } = useContext(UserContext);
 
   useEffect(() => {
     // 로그아웃 관련 처리 더 해야함
-    (async () => {
-      userid=0;
-      setIsLogin(false);
+    (() => {
+      setUser(notLoginUserState);
       window.alert('로그아웃이 완료되었습니다.');
       navigate('/');
     })();
@@ -249,60 +260,9 @@ export function LogOutPage() {
   return <Box padding={2} paddingTop={4}></Box>;
 }
 
-export function History() {
-  return (
-    <Box padding={2} paddingTop={4}>
-      <Box marginBottom={4} textAlign={'center'}>
-        <Typography variant="h4">히스토리</Typography>
-      </Box>
-      <Box>
-        <List>
-          <ListItem>어흥식당</ListItem>
-          <ListItem>끄트머리</ListItem>
-          <ListItem>모이리따</ListItem>
-        </List>
-      </Box>
-    </Box>
-  );
-}
-
-export function Favorites() {
-  return (
-    <Box padding={2} paddingTop={4}>
-      <Box marginBottom={4} textAlign={'center'}>
-        <Typography variant="h4">즐겨찾기</Typography>
-      </Box>
-      <Box>
-        <List>
-          <ListItem>asdf</ListItem>
-          <ListItem>asdf</ListItem>
-          <ListItem>asdf</ListItem>
-        </List>
-      </Box>
-    </Box>
-  );
-}
-
 export function MyPage() {
-  /**
-   * user 상태(state)를 선언했습니다.
-   * 이 state는 User 타입이며, 초기값은 아래와 같습니다.
-   */
-  const [user, setUser] = useState<User>({
-    id: 0,
-    username: '',
-    password: '',
-    nickname: '',
-    age: 21,
-    gender: '',
-  });
+  const { user } = useContext(UserContext);
 
-  /**
-   * 백엔드 서버에 요청을 보내서 유저 정보를 가져오는 함수입니다.
-   * 이런 api호출하는데 axios 라이브러리를 많이 사용합니다.
-   * 서버와 통신하는데 시간이 걸리기 때문에 비동기 함수(async)로 선언했습니다.
-   * 비동기 함수는 항상 try-catch문으로 감싸주는 것이 좋습니다. (에러가 발생할 수 있기 때문에)
-   */
   async function getUser() {
     try {
       /**
@@ -327,10 +287,7 @@ export function MyPage() {
         throw new Error();
       }
     } catch {
-      /**
-       * 모종의 이유로 api 호출에 실패한 경우, 에러를 콘솔에 출력합니다. (실제 사용자에게는 보이지 않습니다.)
-       */
-      console.error('유저 정보를 가져오는데 실패했습니다.');
+      //   console.error('유저 정보를 가져오는데 실패했습니다.');
     }
   }
 
@@ -348,7 +305,7 @@ export function MyPage() {
     getUser();
   }, []);
 
-  return (
+  return user.isLogin ? (
     <Box paddingX={3} paddingY={5}>
       <Box>
         <Typography variant="h4">사용자 정보</Typography>
@@ -356,11 +313,14 @@ export function MyPage() {
       <Box height={40} />
       <Box>
         <Typography variant="h6">이름: {user.username}</Typography>
-        <Typography variant="h6">닉네임: {user.nickname}</Typography>
+        <Typography variant="h6">성: {user.gender}</Typography>
         <Typography variant="h6">나이: {user.age}</Typography>
-        <Typography variant="h6">성별: {user.gender}</Typography>
+        <Typography variant="h6">닉네임: {user.nickname}</Typography>
+        <Typography variant="h6">ID: {user.id}</Typography>
       </Box>
     </Box>
+  ) : (
+    <RequireLoginPage />
   );
 }
 

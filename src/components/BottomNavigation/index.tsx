@@ -19,16 +19,16 @@ import {
   SetMealRounded,
 } from '@mui/icons-material';
 
-import { LoginContext, LoginContextType } from '../../models/user';
+import { UserContext, UserContextType } from '../../models/user';
 
 export default function BottomNav() {
   const navigate = useNavigate();
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { isLogin } = useContext<LoginContextType>(LoginContext);
+  const { user } = useContext<UserContextType>(UserContext);
   return (
     <Box sx={{ width: '100%', height: '10%' }}>
-      {isLogin ? (
+      {user.isLogin ? (
         <BottomNavigation showLabels sx={{ height: '100%', backgroundColor: 'aliceblue' }}>
           <BottomNavigationAction label="momokzi" icon={<SetMealRounded />} onClick={() => navigate('/')} />
           <BottomNavigationAction label="히스토리" icon={<HistoryRounded />} onClick={() => navigate('/history')} />
