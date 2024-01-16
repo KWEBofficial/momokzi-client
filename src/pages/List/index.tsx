@@ -203,16 +203,22 @@ export function PlaceCard({ place, deletable }: PlaceProp) {
             <div />
           )}
         </Stack>
-        <Typography variant="h6">id : {place.id}</Typography>
-        <img
-          src={place.img || placeImageFallback}
-          onError={(event) => {
-            // eslint-disable-next-line no-param-reassign
-            event.currentTarget.src = `/public/placeImageFallback.png`;
-          }}
-          alt={'🏞️'}
-        />
-        <Typography variant="h6">나이: {}</Typography>
+        <Stack direction="row" spacing={2}>
+          <img
+            width={'100px'}
+            height={'100px'}
+            src={place.img || placeImageFallback}
+            onError={(event) => {
+              // eslint-disable-next-line no-param-reassign
+              event.currentTarget.src = `/public/placeImageFallback.png`;
+            }}
+            alt={'🏞️'}
+          />
+          <Stack>
+            <Typography variant="h6">{place.name}</Typography>
+            <Typography variant="h6">별점 {place.grade}</Typography>
+          </Stack>
+        </Stack>
       </Box>
     </Card>
   );
