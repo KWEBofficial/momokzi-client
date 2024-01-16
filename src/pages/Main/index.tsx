@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useContext, useEffect, useState /* , useState */ } from 'react';
+import axios from 'axios';
 import { Box, Typography, Button, CircularProgress, Stack } from '@mui/material';
 
 import { GeoContext, GeoContextType, getCurrentLocation } from '../../models/geo';
@@ -60,8 +61,34 @@ export function MainPage() {
 
   useEffect(() => {
     if (searching) {
-      setTimeout(() => navigate('/place/10'), 3000);
-      // 실패시 : navigate('/fail')
+      axios
+        .post(
+          `${process.env.REACT_APP_API_URL}/place`,
+          {
+            latitude: geo.x,
+            longitude: geo.y,
+            distanceStd: filter.distance,
+            reviewCountStd: filter.reviewCount,
+            opentimeStd: filter.goLater,
+            foodTypeStd: Array.from(filter.foodType)
+              .filter(([, v]) => v)
+              .map(([s]) => s),
+            starStd: filter.star,
+            locationName: geoText.split(' ').at(-1),
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            withCredentials: true,
+          },
+        )
+        .then((value) => {
+          alert(value);
+        })
+        .catch(() => {
+          navigate('/fail');
+        });
     }
   }, [searching]);
 

@@ -29,7 +29,7 @@ export default function BottomNav() {
   return (
     <Box sx={{ width: '100%', height: '10%' }}>
       {user.isLogin ? (
-        <BottomNavigation showLabels sx={{ height: '100%', backgroundColor: 'aliceblue' }}>
+        <BottomNavigation showLabels sx={{ height: '100%', backgroundColor: 'hsl(55, 100%, 97%)' }}>
           <BottomNavigationAction label="momokzi" icon={<SetMealRounded />} onClick={() => navigate('/')} />
           <BottomNavigationAction label="히스토리" icon={<HistoryRounded />} onClick={() => navigate('/history')} />
           <BottomNavigationAction label="즐겨찾기" icon={<FavoriteRounded />} onClick={() => navigate('/favorites')} />
@@ -41,7 +41,7 @@ export default function BottomNav() {
           <BottomNavigationAction label="로그아웃" icon={<LogoutRounded />} onClick={() => navigate('/logout')} />
         </BottomNavigation>
       ) : (
-        <BottomNavigation showLabels sx={{ height: '100%', backgroundColor: 'aliceblue' }}>
+        <BottomNavigation showLabels sx={{ height: '100%', backgroundColor: 'hsl(55, 100%, 97%)' }}>
           <BottomNavigationAction label="momokzi" icon={<SetMealRounded />} onClick={() => navigate('/')} />
           <BottomNavigationAction label="로그인" icon={<LoginRounded />} onClick={() => navigate('/login')} />
           <BottomNavigationAction label="회원가입" icon={<CreateRounded />} onClick={() => navigate('/register')} />
