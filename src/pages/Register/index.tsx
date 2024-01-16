@@ -14,7 +14,6 @@ import { Box, Button, Divider, Stack, TextField, Typography } from '@mui/materia
 import { RequireLoginPage } from '../Error';
 import { notLoginUserState, UserContext } from '../../models/user';
 
-
 /**
  * 유저 생성 페이지입니다.
  * 회원가입을 위한 정보를 입력받습니다.
@@ -84,6 +83,7 @@ export function RegisterPage() {
         navigate('/login');
       }
     } catch (e) {
+      alert(JSON.stringify(e));
       window.alert('회원가입에 실패했습니다.');
     }
   }
@@ -183,16 +183,16 @@ export function LoginPage() {
 
       if (status === 201) {
         setUser({
-        isLogin: true,
-        id: userResponse.id,
-        username: userResponse.username,
-        password: '',
-        nickname: userResponse.nickname,
-        age: userResponse.age,
-        gender: userResponse.gender,
-      });
-      window.alert('로그인이 완료되었습니다.');
-      navigate('/');
+          isLogin: true,
+          id: userResponse.id,
+          username: userResponse.username,
+          password: '',
+          nickname: userResponse.nickname,
+          age: userResponse.age,
+          gender: userResponse.gender,
+        });
+        window.alert('로그인이 완료되었습니다.');
+        navigate('/');
       }
     } catch (e) {
       window.alert('로그인에 실패했습니다.');
@@ -248,13 +248,13 @@ export function LogOutPage() {
         },
         withCredentials: true,
       });
-      if(status === 201 || user !== notLoginUserState){
+      if (status === 201 || user !== notLoginUserState) {
         setUser(notLoginUserState);
         window.alert('로그아웃이 완료되었습니다.');
         navigate('/');
       }
     } catch {
-      console.log("error")
+      console.log('error');
     }
   }
 
@@ -277,12 +277,12 @@ export function MyPage() {
         },
         withCredentials: true,
       });
-      console.log(response)
+      console.log(response);
     } catch {
-      console.log("error")
+      console.log('error');
     }
   }
-  
+
   useEffect(() => {
     // 받아오지 않고 세션 정보 직접 사용
     getMyPage();
@@ -306,5 +306,3 @@ export function MyPage() {
     <RequireLoginPage />
   );
 }
-
-

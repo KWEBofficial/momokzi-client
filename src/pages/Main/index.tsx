@@ -86,7 +86,8 @@ export function MainPage() {
         .then((value) => {
           alert(value);
         })
-        .catch(() => {
+        .catch((e) => {
+          alert(e);
           navigate('/fail');
         });
     }
