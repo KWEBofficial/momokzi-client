@@ -14,6 +14,8 @@ import { Box, Button, Divider, Stack, TextField, Typography, Card } from '@mui/m
 import { RequireLoginPage } from '../Error';
 import { notLoginUserState, User, UserContext } from '../../models/user';
 
+let userid = 0;
+
 /**
  * 유저 생성 페이지입니다.
  * 회원가입을 위한 정보를 입력받습니다.
@@ -179,15 +181,17 @@ export function LoginPage() {
    */
   async function handleLogin() {
     try {
-      // const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/sign_in`, input, {
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      // });
+      const { data: userResponse, status } = await axios.post(`${process.env.REACT_APP_API_URL}/auth/sign_in`, input, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-      // if (response.status === 201) {
-      window.alert('로그인이 완료되었습니다.');
-      setUser({
+      if (status === 201) {
+        window.alert('로그인이 완료되었습니다.');
+        userid = userResponse.id;
+        setIsLogin(true);
+        setUser({
         isLogin: true,
         id: 10,
         username: 'asdf',
@@ -196,8 +200,8 @@ export function LoginPage() {
         age: 245,
         gender: 'male',
       });
-      navigate('/');
-      // }
+        navigate('/');
+      }
     } catch (e) {
       window.alert('로그인에 실패했습니다.');
     }
@@ -271,12 +275,17 @@ export function MyPage() {
        * axios.get()은 여러 값들을 반환하지만, 우리는 data, status만 사용할 것입니다.
        * data라는 이름은 너무 추상적이기 때문에 userResponse라는 이름으로 사용합니다.
        */
-      // const { data: userResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/user/info`);
-      // if (status === 200) {
-      // setUser(userResponse);
-      // } else {
-      //   throw new Error();
-      // }
+      const { data: userResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/user/info?id=${userid}`);
+      if (status === 200) {
+        /**
+         * status가 200이라는 것은 서버로부터 제대로 데이터를 받아왔다는 것이므로, 우리는 user 상태를 업데이트해줍니다.
+         */
+        setUser(userResponse);
+      } else {
+        // 실패한 경우, 에러를 발생시킵니다.
+        // 이러면 아래의 catch문으로 넘어갑니다.
+        throw new Error();
+      }
     } catch {
       //   console.error('유저 정보를 가져오는데 실패했습니다.');
     }
