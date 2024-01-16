@@ -240,21 +240,28 @@ export function LogOutPage() {
 
   const { user, setUser } = useContext(UserContext);
 
-  useEffect(() => {
-    // 로그아웃 관련 처리 더 해야함
-    axios.get(`${process.env.REACT_APP_API_URL}/auth/sign_out`, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      withCredentials: true,
-    });
-      if (user !== notLoginUserState) {
+  async function logout() {
+    try {
+      const { status } = await axios.get(`${process.env.REACT_APP_API_URL}/auth/sign_out`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+      if(status === 201 || user !== notLoginUserState){
         setUser(notLoginUserState);
         window.alert('로그아웃이 완료되었습니다.');
+        navigate('/');
       }
-      navigate('/');
+    } catch {
+      console.log("error")
     }
-  , []);
+  }
+
+  useEffect(() => {
+    // 로그아웃 관련 처리 더 해야함
+    logout();
+  }, []);
 
   return <Box padding={2} paddingTop={4}></Box>;
 }
@@ -288,11 +295,11 @@ export function MyPage() {
       </Box>
       <Box height={40} />
       <Box>
-        <Typography variant="h6">이름: {user.username}</Typography>
-        <Typography variant="h6">성: {user.gender}</Typography>
-        <Typography variant="h6">나이: {user.age}</Typography>
+        <Typography variant="h6">고유번호: {user.id}</Typography>
+        <Typography variant="h6">아이디: {user.username}</Typography>
         <Typography variant="h6">닉네임: {user.nickname}</Typography>
-        <Typography variant="h6">ID: {user.id}</Typography>
+        <Typography variant="h6">나이: {user.age}</Typography>
+        <Typography variant="h6">성별: {user.gender}</Typography>
       </Box>
     </Box>
   ) : (
