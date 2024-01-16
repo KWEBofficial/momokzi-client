@@ -1,7 +1,7 @@
 import { Route, Routes } from 'react-router-dom';
 
 import { FilterPage, MapPage } from '../pages/Setting';
-import { RegisterPage, LoginPage, MyPage, ListPage, LogOutPage } from '../pages/Register';
+import { RegisterPage, LoginPage, MyPage, LogOutPage } from '../pages/Register';
 import { MainPage } from '../pages/Main';
 import { History, Favorites, PlacePage } from '../pages/List';
 import { NotFoundPage, SearchFailedPage } from '../pages/Error';
@@ -24,8 +24,7 @@ export function RouteComponent() {
       <Route path="/mypage" element={<MyPage />} />
       <Route path="/fail" element={<SearchFailedPage />} />
       <Route path="/place/:id" element={<PlacePage />} />
-      <Route path="/list/:age" element={<ListPage />} />
-      <Route path="/list/:age" element={<ListPage />} />
+
       <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );

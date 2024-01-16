@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import React, { useContext, useEffect, useState } from 'react';
-// import axios from 'axios';
+import axios from 'axios';
 import { Box, Card, IconButton, Stack, Typography } from '@mui/material';
 import { Delete, Star } from '@mui/icons-material';
 
@@ -74,18 +74,31 @@ export function History() {
 
   async function getHistory() {
     try {
+      const { data: placeResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/history/list?userid=${user.id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+
+      });
+
+      if (status === 201) {
+
+        alert(JSON.stringify(placeResponse));
+        setPlaces([
+          {
+            id: 1,
+            name: '어흥식당',
+            isFavorite: false,
+            grade: 4.0,
+            img: undefined,
+          },
+        ]);
+
       // 장소 정보를 가져옴
       // State 사용, 여기선 일단 임시값 사용
-      setPlaces([
-        {
-          id: 1,
-          name: '어흥식당',
-          isFavorite: false,
-          grade: 4.0,
-          img: undefined,
-        },
-      ]);
-    } catch {
+      }
+  } catch {
       console.error('장소 정보를 가져오는데 실패했습니다.');
     }
   }
