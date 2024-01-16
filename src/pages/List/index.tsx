@@ -17,43 +17,12 @@ import placeImageFallback from '../../image/placeImageFallback.png';
  */
 
 export function PlacePage() {
-  const [place, setPlace] = useState<Place>(placePlaceHolder);
   const { id } = useParams();
 
-  async function getPlace() {
-    try {
-      // id를 이용해 장소 정보를 가져옴.
-      if (Number(id) < 0) throw new Error('id is negative');
-      setPlace({
-        id: 1,
-        name: '어흥식당',
-        isFavorite: true,
-        grade: 4.0,
-        img: undefined,
-      });
-
-      // const { data: userResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/user/${age}`);
-      // if (status === 200) {
-      //   setUsers(userResponse);
-      // } else {
-      //   throw new Error();
-      // }
-    } catch {
-      console.error('유저 정보를 가져오는데 실패했습니다.');
-    }
-  }
-
   useEffect(() => {
-    getPlace();
+    // id는 카드에서 처리
   }, []);
 
-  /**
-   * user.map 을 실행하고 있습니다.
-   * js에서도 for, while 반복문이 있기는 하지만 금기시하고 있습니다.
-   * 대신에 map, filter, reduce 등의 메서드를 사용합니다.
-   * for, while보다 더 간결하고, 가독성이 좋습니다.
-   * 특히 map은 배열을 렌더링할 때 많이 사용합니다. 매우 중요!!
-   */
   return (
     <Box paddingX={3} paddingY={5}>
       <Box>
@@ -61,7 +30,7 @@ export function PlacePage() {
       </Box>
       <Box mt={4}>
         <Stack spacing={4}>
-          <PlaceCard deletable={false} place={place} />
+          <PlaceCardWithId deletable={false} placeId={Number(id)} />
         </Stack>
       </Box>
     </Box>
@@ -70,11 +39,11 @@ export function PlacePage() {
 
 export function History() {
   const { user } = useContext(UserContext);
-  const [places, setPlaces] = useState<Place[]>([]);
+  const [ placeids, setPlaceids ] = useState<number[]>([]);
 
   async function getHistory() {
     try {
-      const { data: placeResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/history/list?userid=${user.id}`, {
+      const { data: placeResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/history/list`, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -83,17 +52,7 @@ export function History() {
       });
 
       if (status === 201) {
-
-        alert(JSON.stringify(placeResponse));
-        setPlaces([
-          {
-            id: 1,
-            name: '어흥식당',
-            isFavorite: false,
-            grade: 4.0,
-            img: undefined,
-          },
-        ]);
+        setPlaceids(placeResponse.historyList.map((e: {historyid: string; placeid: string})=>Number(e.placeid)));
 
       // 장소 정보를 가져옴
       // State 사용, 여기선 일단 임시값 사용
@@ -114,9 +73,9 @@ export function History() {
       </Box>
       <Box mt={4}>
         <Stack spacing={4}>
-          {places.map((place) => (
-            <PlaceCard deletable={true} place={place} />
-          ))}
+          {placeids.length ? placeids.map((placeid) => (
+            <PlaceCardWithId deletable={true} placeId={placeid} />
+          )) : <Typography>표시할 내용이 없습니다.</Typography>}
         </Stack>
       </Box>
     </Box>
@@ -127,23 +86,25 @@ export function History() {
 
 export function Favorites() {
   const { user } = useContext(UserContext);
-  const [places, setPlaces] = useState<Place[]>([]);
+  const [placeids, setPlaceids] = useState<number[]>([]);
 
   async function getFavorites() {
     try {
+      const { data: placeResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/bookmark/list`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+
+      });
+
+      if (status === 201) {
+        setPlaceids(placeResponse.historyList.map((e: {historyid: string; placeid: string})=>Number(e.placeid)));
+
       // 장소 정보를 가져옴
       // State 사용, 여기선 일단 임시값 사용
-      // 장소 정보를 "id"만 가져오고 나중에 하도록 해도 될듯
-      setPlaces([
-        {
-          id: 1,
-          name: '어흥식당',
-          isFavorite: true,
-          grade: 4.0,
-          img: undefined,
-        },
-      ]);
-    } catch {
+      }
+  } catch {
       console.error('장소 정보를 가져오는데 실패했습니다.');
     }
   }
@@ -152,6 +113,7 @@ export function Favorites() {
     getFavorites();
   }, []);
 
+
   return user.isLogin ? (
     <Box paddingX={3} paddingY={5}>
       <Box>
@@ -159,9 +121,9 @@ export function Favorites() {
       </Box>
       <Box mt={4}>
         <Stack spacing={4}>
-          {places.map((place) => (
-            <PlaceCard deletable={false} place={place} />
-          ))}
+          {placeids.length ? placeids.map((placeid) => (
+            <PlaceCardWithId deletable={false} placeId={placeid} />
+          )) : <Typography>표시할 내용이 없습니다.</Typography>}
         </Stack>
       </Box>
     </Box>
@@ -174,18 +136,137 @@ export function Favorites() {
  * 이런식으로 mui를 사용해도 커스텀 컴포넌트를 만들어서 사용할 수 있습니다.
  * interface를 사용해서 props의 타입을 정해줄 수 있습니다.
  */
-interface PlaceProp {
-  place: Place;
+// interface PlaceProp {
+//   place: Place;
+//   deletable: boolean;
+// }
+
+interface PlaceOnlyIdProp {
+  placeId: number;
   deletable: boolean;
 }
 
-export function PlaceCard({ place, deletable }: PlaceProp) {
+// export function PlaceCard({ place, deletable }: PlaceProp) {
+//   const [star, setStar] = useState(place.isFavorite);
+//   const [deleted, setDeleted] = useState(false);
+
+//   useEffect(() => {
+//     // 즐겨찾기 토글 동작
+//   }, [star]);
+
+//   useEffect(() => {
+//     // 히스토리 제거 동작
+//   }, [deleted]);
+
+//   return deleted ? (
+//     <div />
+//   ) : (
+//     <Card>
+//       <Box padding={2}>
+//         <Stack direction="row" justifyContent="flex-end" spacing={2}>
+//           <IconButton
+//             onClick={() => {
+//               setStar(!star);
+//             }}
+//           >
+//             <Star color={star ? 'primary' : 'disabled'} />
+//           </IconButton>
+//           {deletable ? (
+//             <IconButton
+//               onClick={() => {
+//                 setDeleted(true);
+//               }}
+//             >
+//               <Delete />
+//             </IconButton>
+//           ) : (
+//             <div />
+//           )}
+//         </Stack>
+//         <Stack direction="row" spacing={2}>
+//           <img
+//             width={'100px'}
+//             height={'100px'}
+//             src={place.img || placeImageFallback}
+//             onError={(event) => {
+//               // eslint-disable-next-line no-param-reassign
+//               event.currentTarget.src = `/public/placeImageFallback.png`;
+//             }}
+//             alt={'🏞️'}
+//           />
+//           <Stack>
+//             <Typography variant="h6">{place.name}</Typography>
+//             <Typography variant="h6">별점 {place.grade}</Typography>
+//           </Stack>
+//         </Stack>
+//       </Box>
+//     </Card>
+//   );
+// }
+
+export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
+  const [place, setPlace] = useState<Place>(placePlaceHolder);
+  console.log(placeId)
   const [star, setStar] = useState(place.isFavorite);
   const [deleted, setDeleted] = useState(false);
 
-  useEffect(() => {
-    // 즐겨찾기 토글 동작
-  }, [star]);
+  async function getPlace() {
+    // id를 이용해 장소 정보를 가져옴.
+    if (Number(placeId) < 0) throw new Error('id is negative');
+    setPlace({
+      id: 1,
+      name: '어흥식당',
+      isFavorite: true,
+      grade: 4.0,
+      img: undefined,
+    });
+  }
+
+  async function getBookmarkIdfromPlace() {
+    try {
+      const { data: bookmarkId, status } = await axios.get(`${process.env.REACT_APP_API_URL}/bookmark/place?placeId=${placeId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+
+      });
+      if (status === 201) return bookmarkId;
+      return -1;
+    } catch {
+      return -1;
+    }
+  }
+
+
+  async function setFavorite(newValue: boolean, bookmarkId: number) {
+    try {
+      const { data: placeResponse, status } = newValue ?
+      await axios.post(`${process.env.REACT_APP_API_URL}/bookmark`, { placeId }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+
+      }) : await axios.delete(`${process.env.REACT_APP_API_URL}/bookmark/${bookmarkId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+
+      if (status === 201) {
+        console.log(placeResponse)
+        setStar(newValue);
+      }
+  } catch {
+      console.error('장소 정보를 가져오는데 실패했습니다.');
+    }
+  }
+
+  useEffect(()=>{
+    getPlace()
+  }, []);
 
   useEffect(() => {
     // 히스토리 제거 동작
@@ -199,7 +280,14 @@ export function PlaceCard({ place, deletable }: PlaceProp) {
         <Stack direction="row" justifyContent="flex-end" spacing={2}>
           <IconButton
             onClick={() => {
-              setStar(!star);
+              if (star === true) {
+                getBookmarkIdfromPlace().then((v)=>
+                setFavorite(false,  v));
+              }
+              if (star === false) {
+                getBookmarkIdfromPlace().then((v)=>
+                setFavorite(true, v));
+              }
             }}
           >
             <Star color={star ? 'primary' : 'disabled'} />
