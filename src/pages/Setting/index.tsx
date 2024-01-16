@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useContext, useEffect, useState } from 'react';
 // import axios from 'axios';
 // import { Box, Button, Divider, , TextField, Typography } from '@mui/material';
+import FormControlLabel from '@mui/material/FormControlLabel';
 import {
   Box,
   Button,
@@ -9,70 +10,24 @@ import {
   Stack,
   FormControl,
   FormLabel,
-  Select,
   Slider,
-  MenuItem,
   ToggleButtonGroup,
   ToggleButton,
+  Checkbox,
 } from '@mui/material';
 import { MyLocation } from '@mui/icons-material';
 
 import { GeoContext, getCurrentLocation } from '../../models/geo';
-import { FilterContext } from '../../models/filter';
+import { FilterContext, foodTypeList, foodTypeMapAllTrue, foodTypeMapAllFalse } from '../../models/filter';
 // @ts-expect-error kakao will be in global
 const { kakao } = window;
 
 export function FilterPage() {
   const { filter, setFilter } = useContext(FilterContext);
   const [localFilter, setLocalFilter] = useState(filter);
+  const [showChildren, setShowChildren] = React.useState(true);
 
   const navigate = useNavigate();
-
-  const filterList = [
-    '경양식',
-    '곱창 전골/구이',
-    '구내식당',
-    '국/탕/찌개류',
-    '국수/칼국수',
-    '그 외 기타 간이 음식점',
-    '기타 동남아식 전문',
-    '기타 서양식 음식점',
-    '기타 일식 음식점',
-    '기타 한식 음식점',
-    '김밥/만두/분식',
-    '냉면/밀면',
-    '닭/오리고기 구이/찜',
-    '돼지고기 구이/찜',
-    '떡/한과',
-    '마라탕/훠궈',
-    '무도 유흥 주점',
-    '백반/한정식',
-    '버거',
-    '베트남식 전문',
-    '복 요리 전문',
-    '분류 안된 외국식 음식점',
-    '뷔페',
-    '빵/도넛',
-    '생맥주 전문',
-    '소고기 구이/찜',
-    '아이스크림/빙수',
-    '요리 주점',
-    '일반 유흥 주점',
-    '일식 면 요리',
-    '일식 카레/돈가스/덮밥',
-    '일식 회/초밥',
-    '전/부침개',
-    '족발/보쌈',
-    '중국집',
-    '치킨',
-    '카페',
-    '토스트/샌드위치/샐러드',
-    '파스타/스테이크',
-    '패밀리레스토랑',
-    '피자',
-    '해산물 구이/찜',
-    '횟집',
-  ];
 
   return (
     <Box padding={2} paddingTop={4}>
@@ -81,11 +36,10 @@ export function FilterPage() {
           <FormLabel id="demo-radio-buttons-group-label">리뷰수 (이상)</FormLabel>
           <Slider
             aria-label="Temperature"
-            defaultValue={30}
             getAriaValueText={(value) => `${value}°C`}
             valueLabelDisplay="auto"
             step={10}
-            min={10}
+            min={0}
             max={500}
             onChange={(event, value) => {
               if (value !== null && typeof value === 'number') {
@@ -148,26 +102,61 @@ export function FilterPage() {
         </FormControl>
         <FormControl>
           <FormLabel id="foodType-label">음식 종류</FormLabel>
-          <Select
-            aria-labelledby="foodType-select"
-            defaultValue={localFilter.foodType}
-            name="foodType"
-            onChange={(event) => {
-              if (event.target.value !== null && typeof event.target.value === 'string') {
-                setLocalFilter({
-                  reviewCount: localFilter.reviewCount,
-                  distance: localFilter.distance,
-                  goLater: localFilter.goLater,
-                  foodType: event.target.value,
-                  star: localFilter.star,
-                });
+          <span>
+            <FormControlLabel
+              label="전체"
+              control={
+                <Checkbox
+                  checked={foodTypeList.every((v) => localFilter.foodType.get(v) === true)}
+                  indeterminate={
+                    foodTypeList.some((v) => localFilter.foodType.get(v) === false) &&
+                    foodTypeList.some((v) => localFilter.foodType.get(v) === true)
+                  }
+                  onChange={(event, checked) =>
+                    setLocalFilter({
+                      reviewCount: localFilter.reviewCount,
+                      distance: localFilter.distance,
+                      goLater: localFilter.goLater,
+                      foodType: checked ? new Map(foodTypeMapAllTrue) : new Map(foodTypeMapAllFalse),
+                      star: localFilter.star,
+                    })
+                  }
+                />
               }
-            }}
-          >
-            {filterList.flatMap((v) => (
-              <MenuItem value={v}>{v}</MenuItem>
-            ))}
-          </Select>
+            />
+            <Button
+              onClick={() => {
+                setShowChildren(!showChildren);
+              }}
+            >
+              {showChildren ? '가리기' : '보이기'}
+            </Button>
+            {showChildren && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', ml: 3 }}>
+                {foodTypeList.flatMap((v) => (
+                  <FormControlLabel
+                    label={v}
+                    control={
+                      <Checkbox
+                        checked={localFilter.foodType.get(v)}
+                        onChange={(event, value) => {
+                          if (value !== null) {
+                            setLocalFilter({
+                              reviewCount: localFilter.reviewCount,
+                              distance: localFilter.distance,
+                              goLater: localFilter.goLater,
+                              foodType: localFilter.foodType.set(v, value),
+                              star: localFilter.star,
+                            });
+                          }
+                        }}
+                      />
+                    }
+                  />
+                ))}
+              </Box>
+            )}
+          </span>
         </FormControl>
         <FormControl>
           <FormLabel id="demo-radio-buttons-group-label">운영 시간</FormLabel>
@@ -188,8 +177,9 @@ export function FilterPage() {
             }}
             aria-label="Platform"
           >
-            <ToggleButton value={false}>현재 운영 중</ToggleButton>
-            <ToggleButton value={true}>1시간 뒤 운영 중</ToggleButton>
+            <ToggleButton value={0}>상관없음</ToggleButton>
+            <ToggleButton value={1}>현재 운영 중</ToggleButton>
+            <ToggleButton value={2}>1시간 뒤 운영 중</ToggleButton>
           </ToggleButtonGroup>
         </FormControl>
       </Stack>

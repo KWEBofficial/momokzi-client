@@ -74,7 +74,17 @@ export function MainPage() {
       <Box height={40} />
       <Box>
         <Stack>
-          <Typography>{`${geoText}에서 ${filter.foodType}을(를) 검색합니다`}</Typography>
+          <Typography>
+            {`${geoText}에서 ${((foodType: Map<string, boolean>) => {
+              const trueArray = Array.from(foodType, ([name, value]) => ({ name, value })).filter(({ value }) => value);
+              return (
+                (trueArray.length === 0
+                  ? '[선택되지 않음]'
+                  : trueArray[Math.floor(Math.random() * trueArray.length)].name) +
+                (trueArray.length > 1 ? ` 외 ${trueArray.length - 1}개` : ``)
+              );
+            })(filter.foodType)}을(를) 검색합니다`}
+          </Typography>
           <Button onClick={() => navigate('/locate')}>위치 설정</Button>
           <Button onClick={() => navigate('/filter')}>필터 설정</Button>
           {searching ? (
