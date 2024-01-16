@@ -242,6 +242,12 @@ export function LogOutPage() {
 
   useEffect(() => {
     // 로그아웃 관련 처리 더 해야함
+    axios.get(`${process.env.REACT_APP_API_URL}/auth/sign_out`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
       if (user !== notLoginUserState) {
         setUser(notLoginUserState);
         window.alert('로그아웃이 완료되었습니다.');
