@@ -13,7 +13,7 @@ import { Box, Button, Divider, Stack, TextField, Typography, Card, ListItem, Lis
 
 import { User, LoginContext } from '../../models/user';
 
-let userid = '';
+let userid = 0;
 
 /**
  * 유저 생성 페이지입니다.
@@ -178,15 +178,15 @@ export function LoginPage() {
    */
   async function handleLogin() {
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/auth/sign_in`, input, {
+      const { data: userResponse, status } = await axios.post(`${process.env.REACT_APP_API_URL}/auth/sign_in`, input, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      if (response.status === 201) {
+      if (status === 201) {
         window.alert('로그인이 완료되었습니다.');
-        userid = input.username
+        userid = userResponse.id;
         setIsLogin(true);
         navigate('/');
       }
@@ -239,7 +239,7 @@ export function LogOutPage() {
   useEffect(() => {
     // 로그아웃 관련 처리 더 해야함
     (async () => {
-      userid='';
+      userid=0;
       setIsLogin(false);
       window.alert('로그아웃이 완료되었습니다.');
       navigate('/');
@@ -315,7 +315,7 @@ export function MyPage() {
        * axios.get()은 여러 값들을 반환하지만, 우리는 data, status만 사용할 것입니다.
        * data라는 이름은 너무 추상적이기 때문에 userResponse라는 이름으로 사용합니다.
        */
-      const { data: userResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/user/info?userid=${userid}`);
+      const { data: userResponse, status } = await axios.get(`${process.env.REACT_APP_API_URL}/user/info?id=${userid}`);
       if (status === 200) {
         /**
          * status가 200이라는 것은 서버로부터 제대로 데이터를 받아왔다는 것이므로, 우리는 user 상태를 업데이트해줍니다.
