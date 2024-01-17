@@ -63,7 +63,7 @@ export function MainPage() {
     if (searching) {
       axios
         .post(
-          `${process.env.REACT_APP_API_URL}/place`,
+          `${process.env.REACT_APP_API_URL}/place/db?id=1`,
           {
             latitude: geo.x,
             longitude: geo.y,
@@ -84,7 +84,8 @@ export function MainPage() {
           },
         )
         .then((value) => {
-          alert(value);
+          alert(JSON.stringify(value));
+          navigate('/place/1');
         })
         .catch((e) => {
           alert(e);

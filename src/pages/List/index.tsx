@@ -213,11 +213,17 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
   async function getPlace() {
     // id를 이용해 장소 정보를 가져옴.
     if (Number(placeId) < 0) throw new Error('id is negative');
+    const { data: placeResponse } = await axios.post(`${process.env.REACT_APP_API_URL}/place/db?id=1`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
     setPlace({
-      id: 1,
-      name: '어흥식당',
+      id: placeResponse.placeId,
+      name: placeResponse.name,
       isFavorite: true,
-      grade: 4.0,
+      grade: placeResponse.star,
       img: undefined,
     });
   }
