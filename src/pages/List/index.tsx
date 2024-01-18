@@ -245,22 +245,6 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
     }
   }
 
-  async function getHistoryIdfromPlace() {
-    try {
-      const { data: historyId, status } = await axios.get(`${process.env.REACT_APP_API_URL}/history/place?placeId=${placeId}`, {
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        withCredentials: true,
-
-      });
-      if (status === 201) return historyId;
-      return -1;
-    } catch {
-      return -1;
-    }
-  }
-
   async function setFavorite(newValue: boolean, bookmarkId: number) {
     try {
       const { data: placeResponse, status } = newValue ?
@@ -283,6 +267,22 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
       }
   } catch {
       console.error('장소 정보를 가져오는데 실패했습니다.');
+    }
+  }
+
+  async function getHistoryIdfromPlace() {
+    try {
+      const { data: historyId, status } = await axios.get(`${process.env.REACT_APP_API_URL}/history/place?placeId=${placeId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+
+      });
+      if (status === 201) return historyId;
+      return -1;
+    } catch {
+      return -1;
     }
   }
 
@@ -331,7 +331,9 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
             <IconButton
               onClick={() => {
                 getHistoryIdfromPlace().then((v)=>
-                deleteHistory(v));              }}
+                deleteHistory(v));
+                setDeleted(true);
+              }}
             >
               <Delete />
             </IconButton>
