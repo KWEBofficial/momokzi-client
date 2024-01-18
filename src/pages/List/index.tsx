@@ -213,7 +213,7 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
     // id를 이용해 장소 정보를 가져옴.
     // alert('getting place');
     if (Number(placeId) < 0) throw new Error('id is negative');
-    const { data: placeResponse } = await axios.post(`${process.env.REACT_APP_API_URL}/place/id`, {id: placeId}, {
+    const { data: placeResponse } = await axios.post(`${process.env.REACT_APP_API_URL}/place/db`, {id: placeId}, {
       headers: {
         'Content-Type': 'application/json',
       },
