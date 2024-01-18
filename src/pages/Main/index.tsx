@@ -85,8 +85,14 @@ export function MainPage() {
             withCredentials: true,
           },
         )
-        .then((value) => {
+        .then(async (value) => {
           // alert(JSON.stringify(value));
+          await axios.post(`${process.env.REACT_APP_API_URL}/history`, { id: value.data.placeId }, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            withCredentials: true,
+          });
           alert(value.data.name);
           navigate(`/place/${value.data.placeId}`);
         })

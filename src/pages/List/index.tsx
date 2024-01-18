@@ -53,7 +53,7 @@ export function History() {
       });
 
       if (status === 201) {
-        setPlaceids(placeResponse.historyList.map((e: {id: number; placeId: string})=>Number(e.placeId)));
+        setPlaceids(placeResponse.historyList.map((e: {id: number; placeid: number})=>Number(e.placeid)));
       // 장소 정보를 가져옴
       // State 사용, 여기선 일단 임시값 사용
       }
@@ -219,7 +219,7 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
       },
       withCredentials: true,
     });
-    alert(placeResponse);
+    // alert(placeResponse);
     setPlace({
       id: placeResponse.placeId,
       name: placeResponse.name,
@@ -245,6 +245,21 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
     }
   }
 
+  async function getHistoryIdfromPlace() {
+    try {
+      const { data: historyId, status } = await axios.get(`${process.env.REACT_APP_API_URL}/history/place?placeId=${placeId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+
+      });
+      if (status === 201) return historyId;
+      return -1;
+    } catch {
+      return -1;
+    }
+  }
 
   async function setFavorite(newValue: boolean, bookmarkId: number) {
     try {
@@ -266,6 +281,19 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
         console.log(placeResponse)
         setStar(newValue);
       }
+  } catch {
+      console.error('장소 정보를 가져오는데 실패했습니다.');
+    }
+  }
+
+  async function deleteHistory(historyId: number) {
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/history/${historyId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
   } catch {
       console.error('장소 정보를 가져오는데 실패했습니다.');
     }
@@ -302,8 +330,8 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
           {deletable ? (
             <IconButton
               onClick={() => {
-                setDeleted(true);
-              }}
+                getHistoryIdfromPlace().then((v)=>
+                deleteHistory(v));              }}
             >
               <Delete />
             </IconButton>
