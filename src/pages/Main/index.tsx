@@ -60,12 +60,12 @@ export function MainPage() {
   }, [geo]);
 
   useEffect(() => {
-    const randomint = Math.floor(Math.random() * 3) + 1;
+//    const randomint = Math.floor(Math.random() * 3) + 1;
     if (searching) {
       axios
         .post(
-          `${process.env.REACT_APP_API_URL}/place/db?id=${randomint}`,
-//          `${process.env.REACT_APP_API_URL}/place`,
+//          `${process.env.REACT_APP_API_URL}/place/db?id=${randomint}`,
+          `${process.env.REACT_APP_API_URL}/place`,
           {
             latitude: geo.x,
             longitude: geo.y,
@@ -86,8 +86,9 @@ export function MainPage() {
           },
         )
         .then((value) => {
-          alert(JSON.stringify(value));
-          navigate(`/place/${randomint}`);
+          // alert(JSON.stringify(value));
+          alert(value.data.name);
+          navigate(`/place/${value.data.placeId}`);
         })
         .catch((e) => {
           alert(e);

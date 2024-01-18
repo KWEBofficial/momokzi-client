@@ -18,6 +18,7 @@ import placeImageFallback from '../../image/placeImageFallback.png';
 
 export function PlacePage() {
   const { id } = useParams();
+  alert(id);
 
   useEffect(() => {
     // id는 카드에서 처리
@@ -52,8 +53,7 @@ export function History() {
       });
 
       if (status === 201) {
-        setPlaceids(placeResponse.historyList.map((e: {historyid: string; placeid: string})=>Number(e.placeid)));
-
+        setPlaceids(placeResponse.historyList.map((e: {id: number; placeId: string})=>Number(e.placeId)));
       // 장소 정보를 가져옴
       // State 사용, 여기선 일단 임시값 사용
       }
@@ -99,7 +99,7 @@ export function Favorites() {
       });
 
       if (status === 201) {
-        setPlaceids(placeResponse.historyList.map((e: {historyid: string; placeid: string})=>Number(e.placeid)));
+        setPlaceids(placeResponse.historyList.map((e: {id: number; placeId: string})=>Number(e.placeId)));
 
       // 장소 정보를 가져옴
       // State 사용, 여기선 일단 임시값 사용
@@ -206,19 +206,20 @@ interface PlaceOnlyIdProp {
 
 export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
   const [place, setPlace] = useState<Place>(placePlaceHolder);
-  console.log(placeId)
   const [star, setStar] = useState(place.isFavorite);
   const [deleted, setDeleted] = useState(false);
 
   async function getPlace() {
     // id를 이용해 장소 정보를 가져옴.
+    alert('getting place');
     if (Number(placeId) < 0) throw new Error('id is negative');
-    const { data: placeResponse } = await axios.post(`${process.env.REACT_APP_API_URL}/place/db?id=${Number(placeId)}`, {
+    const { data: placeResponse } = await axios.post(`${process.env.REACT_APP_API_URL}/place/id?id=${placeId}`, {
       headers: {
         'Content-Type': 'application/json',
       },
       withCredentials: true,
     });
+    alert(placeResponse);
     setPlace({
       id: placeResponse.placeId,
       name: placeResponse.name,
