@@ -227,6 +227,16 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
       grade: placeResponse.star,
       img: undefined,
     });
+    /*
+    const { status } = await axios.post(`${process.env.REACT_APP_API_URL}/bookmark`, { placeId }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
+    if(status === 201) setPlace({ ...place, isFavorite: true, });
+    if(status === 202) setPlace({ ...place, isFavorite: false, });
+    */
   }
 
   async function getBookmarkIdfromPlace() {
@@ -264,6 +274,11 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
       if (status === 201) {
         console.log(placeResponse)
         setStar(newValue);
+      }
+
+      if (status === 202) {
+        console.log(placeResponse);
+        setStar(true);
       }
   } catch {
       console.error('장소 정보를 가져오는데 실패했습니다.');
