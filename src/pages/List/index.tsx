@@ -99,7 +99,7 @@ export function Favorites() {
       });
 
       if (status === 201) {
-        setPlaceids(placeResponse.historyList.map((e: {id: number; placeId: string})=>Number(e.placeId)));
+        setPlaceids(placeResponse.bookmarkList.map((e: {id: number; placeid: number})=>Number(e.placeid)));
 
       // 장소 정보를 가져옴
       // State 사용, 여기선 일단 임시값 사용
@@ -320,8 +320,7 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
                 setFavorite(false,  v));
               }
               if (star === false) {
-                getBookmarkIdfromPlace().then((v)=>
-                setFavorite(true, v));
+                setFavorite(true, placeId);
               }
             }}
           >
