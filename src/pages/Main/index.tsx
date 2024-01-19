@@ -3,9 +3,11 @@ import { useContext, useEffect, useState /* , useState */ } from 'react';
 import axios from 'axios';
 import { Box, Typography, Button, CircularProgress, Stack } from '@mui/material';
 
+import { UserContext } from '../../models/user';
 import { GeoContext, GeoContextType, getCurrentLocation } from '../../models/geo';
 import { FilterContext } from '../../models/filter';
 import thinkFish from '../../image/thinkFish.png';
+
 // @ts-expect-error kakao will be in global
 const { kakao } = window;
 
@@ -17,6 +19,7 @@ export function MainPage() {
   const { geo, setGeo } = useContext<GeoContextType>(GeoContext);
   const { filter } = useContext(FilterContext);
   const navigate = useNavigate();
+  const { user } = useContext(UserContext);
 
   /**
    * 백엔드 서버에 요청을 보내서 유저 정보를 가져오는 함수입니다.
@@ -85,9 +88,23 @@ export function MainPage() {
             withCredentials: true,
           },
         )
-        .then((value) => {
+        .then(async (value) => {
           // alert(JSON.stringify(value));
-          alert(value.data.name);
+          if(user.isLogin){
+          await axios.post(`${process.env.REACT_APP_API_URL}/history`, { id: value.data.placeId }, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            withCredentials: true,
+          });}
+          else{
+          await axios.post(`${process.env.REACT_APP_API_URL}/place/db`, { id: value.data.placeId }, {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            withCredentials: true,
+          });}
+          // alert(value.data.name);
           navigate(`/place/${value.data.placeId}`);
         })
         .catch((e) => {

@@ -18,7 +18,7 @@ import placeImageFallback from '../../image/placeImageFallback.png';
 
 export function PlacePage() {
   const { id } = useParams();
-  alert(id);
+  // alert(id);
 
   useEffect(() => {
     // id는 카드에서 처리
@@ -53,7 +53,7 @@ export function History() {
       });
 
       if (status === 201) {
-        setPlaceids(placeResponse.historyList.map((e: {id: number; placeId: string})=>Number(e.placeId)));
+        setPlaceids(placeResponse.historyList.map((e: {id: number; placeid: number})=>Number(e.placeid)));
       // 장소 정보를 가져옴
       // State 사용, 여기선 일단 임시값 사용
       }
@@ -99,7 +99,7 @@ export function Favorites() {
       });
 
       if (status === 201) {
-        setPlaceids(placeResponse.historyList.map((e: {id: number; placeId: string})=>Number(e.placeId)));
+        setPlaceids(placeResponse.bookmarkList.map((e: {id: number; placeid: number})=>Number(e.placeid)));
 
       // 장소 정보를 가져옴
       // State 사용, 여기선 일단 임시값 사용
@@ -208,6 +208,7 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
   const [place, setPlace] = useState<Place>(placePlaceHolder);
   const [star, setStar] = useState(place.isFavorite);
   const [deleted, setDeleted] = useState(false);
+  const { user } = useContext(UserContext);
 
   async function getPlace() {
     // id를 이용해 장소 정보를 가져옴.
@@ -219,14 +220,45 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
       },
       withCredentials: true,
     });
-    alert(placeResponse);
+
+  // alert(placeResponse);
     setPlace({
       id: placeResponse.placeId,
       name: placeResponse.name,
-      isFavorite: true,
+      isFavorite: false,
       grade: placeResponse.star,
       img: undefined,
     });
+
+    
+    try {
+      const { status } = await axios.get(`${process.env.REACT_APP_API_URL}/bookmark/place?placeId=${placeId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
+    if (status === 201) {
+      setStar(true);
+    }
+    else {
+      setStar(false);
+    }
+    } catch {
+      setStar(false);
+    }
+    
+    // setStar(true);
+    /*
+    const { status } = await axios.post(`${process.env.REACT_APP_API_URL}/bookmark`, { placeId }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
+    if(status === 201) setPlace({ ...place, isFavorite: true, });
+    if(status === 202) setPlace({ ...place, isFavorite: false, });
+    */
   }
 
   async function getBookmarkIdfromPlace() {
@@ -244,7 +276,6 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
       return -1;
     }
   }
-
 
   async function setFavorite(newValue: boolean, bookmarkId: number) {
     try {
@@ -266,10 +297,40 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
         console.log(placeResponse)
         setStar(newValue);
       }
+
   } catch {
       console.error('장소 정보를 가져오는데 실패했습니다.');
     }
   }
+
+  async function getHistoryIdfromPlace() {
+    try {
+      const { data: historyId, status } = await axios.get(`${process.env.REACT_APP_API_URL}/history/place?placeId=${placeId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+
+      });
+      if (status === 201) return historyId;
+      return -1;
+    } catch {
+      return -1;
+    }
+  }
+
+  async function deleteHistory(historyId: number) {
+    try {
+      await axios.delete(`${process.env.REACT_APP_API_URL}/history/${historyId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      });
+  } catch {
+      console.error('장소 정보를 가져오는데 실패했습니다.');
+    }
+  };
 
   useEffect(()=>{
     getPlace()
@@ -292,8 +353,10 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
                 setFavorite(false,  v));
               }
               if (star === false) {
-                getBookmarkIdfromPlace().then((v)=>
-                setFavorite(true, v));
+                if(user.isLogin) {
+                  setFavorite(true, placeId);
+                }
+                else alert('로그인이 필요합니다.');
               }
             }}
           >
@@ -302,6 +365,8 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
           {deletable ? (
             <IconButton
               onClick={() => {
+                getHistoryIdfromPlace().then((v)=>
+                deleteHistory(v));
                 setDeleted(true);
               }}
             >
@@ -321,6 +386,7 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
               event.currentTarget.src = `/public/placeImageFallback.png`;
             }}
             alt={'🏞️'}
+            onClick={() => window.open(`https://pcmap.place.naver.com/restaurant/${place.id}`)}
           />
           <Stack>
             <Typography variant="h6">{place.name}</Typography>
