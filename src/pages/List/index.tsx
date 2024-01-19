@@ -208,6 +208,7 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
   const [place, setPlace] = useState<Place>(placePlaceHolder);
   const [star, setStar] = useState(place.isFavorite);
   const [deleted, setDeleted] = useState(false);
+  const { user } = useContext(UserContext);
 
   async function getPlace() {
     // id를 이용해 장소 정보를 가져옴.
@@ -219,14 +220,35 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
       },
       withCredentials: true,
     });
-    // alert(placeResponse);
+
+  // alert(placeResponse);
     setPlace({
       id: placeResponse.placeId,
       name: placeResponse.name,
-      isFavorite: true,
+      isFavorite: false,
       grade: placeResponse.star,
       img: undefined,
     });
+
+    
+    try {
+      const { status } = await axios.get(`${process.env.REACT_APP_API_URL}/bookmark/place?placeId=${placeId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      withCredentials: true,
+    });
+    if (status === 201) {
+      setStar(true);
+    }
+    else {
+      setStar(false);
+    }
+    } catch {
+      setStar(false);
+    }
+    
+    // setStar(true);
     /*
     const { status } = await axios.post(`${process.env.REACT_APP_API_URL}/bookmark`, { placeId }, {
       headers: {
@@ -276,10 +298,6 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
         setStar(newValue);
       }
 
-      if (status === 202) {
-        console.log(placeResponse);
-        setStar(true);
-      }
   } catch {
       console.error('장소 정보를 가져오는데 실패했습니다.');
     }
@@ -312,7 +330,7 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
   } catch {
       console.error('장소 정보를 가져오는데 실패했습니다.');
     }
-  }
+  };
 
   useEffect(()=>{
     getPlace()
@@ -333,9 +351,14 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
               if (star === true) {
                 getBookmarkIdfromPlace().then((v)=>
                 setFavorite(false,  v));
+                setPlace({ ...place });
               }
               if (star === false) {
-                setFavorite(true, placeId);
+                if(user.isLogin) {
+                  setFavorite(true, placeId);
+                  setPlace({ ...place });
+                }
+                else alert('로그인이 필요합니다.');
               }
             }}
           >
