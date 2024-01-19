@@ -18,7 +18,7 @@ import placeImageFallback from '../../image/placeImageFallback.png';
 
 export function PlacePage() {
   const { id } = useParams();
-  alert(id);
+  // alert(id);
 
   useEffect(() => {
     // id는 카드에서 처리
@@ -386,6 +386,7 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
               event.currentTarget.src = `/public/placeImageFallback.png`;
             }}
             alt={'🏞️'}
+            onClick={() => window.open(`https://pcmap.place.naver.com/restaurant/${place.id}`)}
           />
           <Stack>
             <Typography variant="h6">{place.name}</Typography>

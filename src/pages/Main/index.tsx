@@ -104,7 +104,7 @@ export function MainPage() {
             },
             withCredentials: true,
           });}
-          alert(value.data.name);
+          // alert(value.data.name);
           navigate(`/place/${value.data.placeId}`);
         })
         .catch((e) => {
