@@ -351,12 +351,10 @@ export function PlaceCardWithId({ placeId, deletable }: PlaceOnlyIdProp ) {
               if (star === true) {
                 getBookmarkIdfromPlace().then((v)=>
                 setFavorite(false,  v));
-                setPlace({ ...place });
               }
               if (star === false) {
                 if(user.isLogin) {
                   setFavorite(true, placeId);
-                  setPlace({ ...place });
                 }
                 else alert('로그인이 필요합니다.');
               }
